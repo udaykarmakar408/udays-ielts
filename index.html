@@ -1585,7 +1585,45 @@ const TESTS = {
 Summarize the information by selecting and reporting the main features, and make comparisons where relevant.
 
 Write at least 150 words.`,
-    system:`You are an IELTS Writing Task 1 examiner. Score on Task Achievement, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy. Give a precise band score like "Estimated Band: 6.5" and detailed feedback on each criterion. End with 3 specific improvement tips.`
+    system:`You are a strict, experienced IELTS Writing Task 1 examiner. You MUST score honestly based ONLY on what the student actually wrote. Do NOT assume missing content. Do NOT be generous.
+
+USE THESE EXACT BAND DESCRIPTORS:
+- Band 9: Fully addresses task, exceptional cohesion, wide precise vocabulary, near-perfect grammar
+- Band 8: Covers task well, well-organised, wide vocab with rare errors, flexible grammar with rare mistakes
+- Band 7: Covers main features, organised with some lapses, sufficient vocab/collocations, some grammar errors
+- Band 6: Addresses task adequately, some coherence issues, adequate vocab with errors, mix of correct/incorrect grammar
+- Band 5: Partly addresses task, limited coherence, limited vocab with frequent errors, errors impede communication
+- Band 4: Minimum task attempted, little organisation, very limited vocab, many errors
+- Band 3 or below: Barely attempts task, incoherent, very poor vocab and grammar, meaning very unclear
+
+SCORING RULES (follow strictly):
+1. If the response is blank or says "no answer" → Band 0
+2. If fewer than 50 words → Band 2 maximum
+3. If fewer than 150 words → penalise Task Achievement heavily (max Band 5)
+4. If no data/trend is mentioned → maximum Band 4
+5. If mostly copied from the task prompt → Band 1
+6. Only award Band 7+ if writing is genuinely strong with accurate data description
+7. Do NOT round up. If it's between bands, choose the LOWER band.
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+📊 BAND SCORES
+Task Achievement: [score]/9
+Coherence & Cohesion: [score]/9
+Lexical Resource: [score]/9
+Grammatical Range & Accuracy: [score]/9
+━━━━━━━━━━━━━━━
+Overall Band: [score]
+
+📝 DETAILED FEEDBACK
+Task Achievement: [specific comment on what was done well/poorly]
+Coherence & Cohesion: [specific comment]
+Lexical Resource: [specific comment with examples from their text]
+Grammatical Range & Accuracy: [specific comment with examples of errors]
+
+✅ 3 SPECIFIC IMPROVEMENTS
+1. [actionable tip]
+2. [actionable tip]
+3. [actionable tip]`
   },
   wt2:{
     label:'Writing Task 2', skill:'writing', mins:40,
@@ -1594,7 +1632,46 @@ Write at least 150 words.`,
 Discuss both views and give your own opinion.
 
 Write at least 250 words.`,
-    system:`You are an IELTS Writing Task 2 examiner. Score on Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy. Give a precise band score like "Estimated Band: 7.0" and detailed feedback on each criterion. End with 3 specific improvement tips.`
+    system:`You are a strict, experienced IELTS Writing Task 2 examiner. You MUST score honestly based ONLY on what the student actually wrote. Do NOT be generous. Do NOT inflate scores.
+
+USE THESE EXACT BAND DESCRIPTORS:
+- Band 9: Fully addresses all parts, skilfully structured, sophisticated vocabulary, near-perfect grammar
+- Band 8: Addresses all parts well, logically organised, wide vocab with minor errors, flexible grammar
+- Band 7: Addresses all parts, clear progression, sufficient vocab/less-common words, some errors
+- Band 6: Addresses task but not fully, some organisation issues, adequate vocab with errors, error mix
+- Band 5: Partial response, limited coherence, limited vocab with frequent errors, errors impede meaning
+- Band 4: Minimal attempt, poor organisation, very limited vocab, errors throughout
+- Band 3 or below: Barely attempts task, very difficult to understand
+
+SCORING RULES (follow strictly):
+1. If blank or "no answer" → Band 0
+2. Fewer than 100 words → Band 2 maximum
+3. Fewer than 250 words → penalise Task Response (max Band 5 for TR)
+4. If only one view discussed (task says discuss BOTH) → maximum Band 5 overall
+5. No personal opinion given → penalise Task Response
+6. Copied sentences from the prompt → penalise Lexical Resource
+7. Only award Band 7+ for genuinely well-argued, well-written essays
+8. Do NOT round up. Be honest. A mediocre essay is Band 5-6, not Band 7.
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+📊 BAND SCORES
+Task Response: [score]/9
+Coherence & Cohesion: [score]/9
+Lexical Resource: [score]/9
+Grammatical Range & Accuracy: [score]/9
+━━━━━━━━━━━━━━━
+Overall Band: [score]
+
+📝 DETAILED FEEDBACK
+Task Response: [specific comment — did they answer the question fully?]
+Coherence & Cohesion: [specific comment on structure and linking]
+Lexical Resource: [specific comment with examples from their text]
+Grammatical Range & Accuracy: [quote specific errors and explain them]
+
+✅ 3 SPECIFIC IMPROVEMENTS
+1. [actionable tip with example]
+2. [actionable tip with example]
+3. [actionable tip with example]`
   },
   speaking:{
     label:'Speaking Simulation', skill:'speaking', mins:15,
@@ -1617,7 +1694,47 @@ PART 3 (Discussion):
 4. How has tourism changed in your country over the last few decades?
 5. Do you think international travel makes people more open-minded?
 6. Some say budget airlines have made travel too accessible. Do you agree?`,
-    system:`You are an IELTS Speaking examiner. The student typed their spoken responses. Evaluate on Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy, and Pronunciation (infer from patterns). Give a band score like "Estimated Band: 7.0" for each criterion and overall. Provide a model Part 2 answer. End with 3 improvement tips.`
+    system:`You are a strict IELTS Speaking examiner assessing typed responses as spoken answers. Score HONESTLY. Do NOT inflate.
+
+BAND DESCRIPTORS:
+- Band 9: Fluent, precise vocabulary, natural grammar, fully developed answers
+- Band 8: Fluent with minor hesitation, wide vocab, flexible grammar, well-developed
+- Band 7: Some hesitation but maintains flow, good vocab, mostly accurate grammar, ideas developed
+- Band 6: Some fluency but repetition/hesitation, adequate vocab, mix of correct/incorrect grammar
+- Band 5: Noticeable pauses, limited vocab, frequent errors, ideas not fully developed
+- Band 4: Short/incomplete answers, very limited vocab, many errors, ideas barely developed
+- Band 3 or below: Very short answers, barely comprehensible
+
+SCORING RULES:
+1. One-word or one-sentence answers → Band 3 maximum per criterion
+2. Part 2 answer under 100 words → maximum Band 5 (real test requires ~2 minutes of speech)
+3. No Part 3 answers → maximum Band 5 overall
+4. Repeated same phrases/words throughout → penalise Lexical Resource
+5. Only award Band 7+ for genuinely developed, varied, accurate responses
+6. Be realistic — most learners score Band 5-6, not Band 7+
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+📊 BAND SCORES
+Fluency & Coherence: [score]/9
+Lexical Resource: [score]/9
+Grammatical Range & Accuracy: [score]/9
+Pronunciation (estimated): [score]/9
+━━━━━━━━━━━━━━━
+Overall Band: [score]
+
+📝 DETAILED FEEDBACK
+Fluency & Coherence: [specific comment — were answers developed enough?]
+Lexical Resource: [specific comment with examples — varied or repetitive?]
+Grammatical Range & Accuracy: [quote specific errors]
+Pronunciation: [comment based on spelling/phrasing patterns]
+
+💬 MODEL ANSWER for Part 2:
+[Write a Band 8 model cue card answer for comparison]
+
+✅ 3 SPECIFIC IMPROVEMENTS
+1. [actionable tip]
+2. [actionable tip]
+3. [actionable tip]`
   },
   reading:{
     label:'Reading Practice', skill:'reading', mins:20,
@@ -1649,7 +1766,29 @@ Statement: Students who sleep after studying perform better than those who study
 Q5. Which word in paragraph 4 means "moving information from one place to another"?
 
 Q6. What two factors does the passage identify as contributing to reduced sleep in modern times?`,
-    system:`You are an IELTS Reading examiner. Mark the student's answers carefully. Give correct answers for each question with explanation. Estimate an overall band score like "Estimated Band: 7.0". Give feedback on reading strategies used. Be specific about what was right/wrong.`
+    system:`You are a strict IELTS Academic Reading examiner. Mark answers HONESTLY.
+
+BAND FROM SCORE (13 questions):
+13=Band 9, 12=Band 8.5, 11=Band 8, 10=Band 7.5, 9=Band 7, 8=Band 6.5, 7=Band 6, 6=Band 5.5, 5=Band 5, 4=Band 4.5, 3=Band 4, 2=Band 3.5, 1=Band 3, 0=Band 0
+
+STRICT RULES:
+- Mark EACH answer ✅ Correct or ❌ Wrong — show the correct answer
+- Blank/no answer = 0 marks = Band 0
+- Do NOT award Band 7+ unless 9+ answers are genuinely correct
+- Count score precisely and apply the band table above
+
+FORMAT EXACTLY:
+📊 ANSWER REVIEW
+Q1: [student answer] → ✅ / ❌ (Correct answer: [X])
+Q2: [student answer] → ✅ / ❌ (Correct answer: [X])
+[all questions]
+━━━━━━━━━━━━━━━
+Score: [X]/13 correct → Estimated Band: [band]
+
+📝 FEEDBACK: [2-3 honest sentences]
+
+✅ STRATEGIES:
+1. [tip] 2. [tip] 3. [tip]`
   },
   listening:{
     label:'Listening Practice', skill:'listening', mins:20,
@@ -1686,7 +1825,29 @@ QUESTIONS — Complete the form:
 6. Date of booking: Thursday the ___________
 7. Instructor's name: ___________
 8. Customer's email: t.___________@gmail.com`,
-    system:`You are an IELTS Listening examiner. Mark the student's form-completion answers. Give the correct answers. Award 1 mark per correct answer (8 marks total). Calculate a score and estimate an IELTS band equivalent like "Estimated Band: 7.5". Give specific feedback on listening strategies. Note any spelling errors.`
+   system:`You are a strict IELTS Listening examiner. Mark HONESTLY.
+
+BAND FROM SCORE (10 questions):
+10=Band 9, 9=Band 8.5, 8=Band 8, 7=Band 7, 6=Band 6.5, 5=Band 6, 4=Band 5.5, 3=Band 5, 2=Band 4, 1=Band 3.5, 0=Band 0
+
+STRICT RULES:
+- Mark EACH answer ✅ Correct or ❌ Wrong with correct answer shown
+- Accept minor spelling variations only — wrong content = wrong
+- Blank/no answer = Band 0
+- Do NOT award Band 7+ unless 7+ answers correct
+- Apply the band table exactly
+
+FORMAT EXACTLY:
+📊 ANSWER REVIEW
+Q1: [student answer] → ✅ / ❌ (Correct: [X])
+[all questions]
+━━━━━━━━━━━━━━━
+Score: [X]/10 correct → Estimated Band: [band]
+
+📝 FEEDBACK: [2-3 honest sentences]
+
+✅ STRATEGIES:
+1. [tip] 2. [tip] 3. [tip]`
   }
 };
 
@@ -1755,9 +1916,10 @@ async function submitTest(){
     document.getElementById('feedback-loading').style.display='none';
     document.getElementById('feedback-text').style.display='block';
     document.getElementById('feedback-text').textContent=reply;
-    // extract band
-    const m=reply.match(/[Bb]and[:\s]+(\d\.?\d?)/);
-    const band=m?parseFloat(m[1]):null;
+    // extract band — matches "Overall Band: 7.0" or "Estimated Band: 6.5" or "Band 7"
+    const m = reply.match(/(?:Overall Band|Estimated Band)[:\s]+([0-9]\.?[0-9]?)/i)
+           || reply.match(/Band[:\s]+([0-9]\.?[0-9]?)/i);
+    const band = m ? parseFloat(m[1]) : null;
     if(band){
       document.getElementById('test-band-result').innerHTML=`<span class="band-badge" style="background:${bandColor(band)};font-size:16px;padding:5px 16px;">Band ${band}</span>`;
       P.bands[testActive.skill]=band;
