@@ -1558,8 +1558,8 @@ async function sendMessage(text){
     let errMsg = '⚠️ ' + (e.message || 'Unknown error');
     if (e.message === 'NO_KEY') {
       errMsg = '🔑 No API key. Go to ⚙️ Settings → add your FREE Gemini API key from aistudio.google.com';
-    } else if (e.message && (e.message.includes('ANTHROPIC_API_KEY') || e.message.includes('not set'))) {
-      errMsg = '🔑 API key missing on server. Vercel → Settings → Environment Variables → add ANTHROPIC_API_KEY → Redeploy.';
+    } else if (e.message && (e.message.includes('GEMINI_API_KEY') || e.message.includes('not set') || e.message.includes('API key'))) {
+      errMsg = '🔑 GEMINI_API_KEY missing. Vercel → Settings → Environment Variables → add GEMINI_API_KEY → Redeploy.';
     }
     cm.innerHTML += `<div class="chat-row">
       <div class="chat-avatar ai">🤖</div>
