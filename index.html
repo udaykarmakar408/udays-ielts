@@ -359,6 +359,9 @@ button{-webkit-tap-highlight-color:transparent;}
       <button class="snav-btn" onclick="navigate('tutor')" data-page="tutor">
         <span class="sicon">🤖</span><span class="slabel">AI Tutor</span>
       </button>
+      <button class="snav-btn" onclick="navigate('course')" data-page="course">
+        <span class="sicon">🎓</span><span class="slabel">Course</span>
+      </button>
       <button class="snav-btn" onclick="navigate('tests')" data-page="tests">
         <span class="sicon">📝</span><span class="slabel">Mock Tests</span>
       </button>
@@ -614,6 +617,92 @@ What would you like to work on?</div>
       </div>
     </div>
   </div>
+
+  
+  <!-- ══════════ COURSE ══════════ -->
+  <div class="page" id="page-course">
+
+    <!-- Course Home -->
+    <div id="course-home">
+      <div class="sec-title">🎓 IELTS Course</div>
+      <div class="sec-sub">Complete beginner-to-advanced curriculum · 6 levels · AI-powered lessons</div>
+
+      <!-- Level selector -->
+      <div id="course-level-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;"></div>
+
+      <!-- Progress overview -->
+      <div class="card mb-12" id="course-progress-card" style="display:none;">
+        <div class="flex-between mb-8">
+          <span class="fw-700 text-sm">Overall Progress</span>
+          <span class="text-xs text-muted" id="course-pct-label">0%</span>
+        </div>
+        <div class="bar-wrap" style="height:8px;margin-bottom:12px;">
+          <div class="bar-fill" id="course-overall-bar" style="height:8px;background:linear-gradient(90deg,var(--blue),var(--violet));width:0%;transition:width 0.6s;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <div style="text-align:center;">
+            <div class="fw-700 text-blue" id="crs-lessons-done">0</div>
+            <div class="text-xs text-muted">Lessons Done</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="fw-700" style="color:var(--amber);" id="crs-xp">0</div>
+            <div class="text-xs text-muted">XP Earned</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="fw-700" style="color:var(--green);" id="crs-streak">0</div>
+            <div class="text-xs text-muted">Day Streak</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unit list view -->
+    <div id="course-units" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <button class="btn btn-ghost btn-sm" onclick="courseShowHome()">← Back</button>
+        <div>
+          <div class="fw-700" id="course-unit-title"></div>
+          <div class="text-xs text-muted" id="course-unit-sub"></div>
+        </div>
+      </div>
+      <div id="course-unit-list"></div>
+    </div>
+
+    <!-- Lesson view -->
+    <div id="course-lesson" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="courseBackToUnits()">← Back</button>
+        <div style="flex:1;min-width:0;">
+          <div class="fw-700 text-sm" id="lesson-title-bar" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          <div class="text-xs text-muted" id="lesson-level-bar"></div>
+        </div>
+        <div class="tag tag-blue" id="lesson-xp-badge">+20 XP</div>
+      </div>
+      <!-- Progress bar -->
+      <div class="bar-wrap mb-12" style="height:5px;">
+        <div class="bar-fill" id="lesson-prog-bar" style="height:5px;background:linear-gradient(90deg,var(--blue),var(--violet));width:0%;transition:width 0.4s;"></div>
+      </div>
+      <!-- Step content -->
+      <div id="lesson-step-content"></div>
+      <!-- Nav buttons -->
+      <div style="display:flex;gap:8px;margin-top:14px;" id="lesson-nav-btns">
+        <button class="btn btn-ghost" id="lesson-prev-btn" onclick="lessonPrev()" style="display:none;">← Prev</button>
+        <button class="btn btn-primary" style="flex:1;" id="lesson-next-btn" onclick="lessonNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Exercise view -->
+    <div id="course-exercise" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <button class="btn btn-ghost btn-sm" onclick="courseBackToLesson()">← Back</button>
+        <div class="fw-700 text-sm flex:1" id="ex-title"></div>
+      </div>
+      <div id="exercise-content"></div>
+    </div>
+
+  </div>
+
+
 
   <!-- ══════════ MOCK TESTS ══════════ -->
   <div class="page" id="page-tests">
@@ -1034,6 +1123,9 @@ What would you like to work on?</div>
     <button class="bnav-btn" onclick="navigate('tutor')" data-page="tutor">
       <span class="bicon">🤖</span><span class="blabel">AI Tutor</span>
     </button>
+    <button class="bnav-btn" onclick="navigate('course')" data-page="course">
+      <span class="bicon">🎓</span><span class="blabel">Course</span>
+    </button>
     <button class="bnav-btn" onclick="navigate('tests')" data-page="tests">
       <span class="bicon">📝</span><span class="blabel">Tests</span>
     </button>
@@ -1080,7 +1172,7 @@ function defaultP(){
     quizHistory:[], dailyQuizDone:null,
     mockHistory:[], completedLessons:[], badges:[],
     chatHistory:[], roadmapDay:1,
-    vocabLearned:0, essaysWritten:0
+    vocabLearned:0, essaysWritten:0, courseXP:0, completedLessons:[]
   };
 }
 
@@ -1202,6 +1294,7 @@ Use clear formatting, bullet points, and IELTS-specific terminology. Be honest b
 // NAVIGATION
 // ════════════════════════════════════════
 const PAGE_TITLES = {
+  course:'🎓 IELTS Course',
   samples:'🎓 Cambridge Samples',
   dashboard:'🏠 Dashboard', tutor:'🤖 AI Tutor', tests:'📝 Mock Tests',
   resources:'📚 Resources', quiz:'✏️ Daily Quiz', roadmap:'🗓️ Roadmap',
@@ -1240,6 +1333,7 @@ function navigate(page){
   else if(page==='resources') renderResources('reading');
   else if(page==='settings'){ renderSettings(); setTimeout(renderApiKeyStatus, 50); }
   else if(page==='samples') initSamples();
+  else if(page==='course') initCourse();
   else if(page==='quiz') renderQuizHome();
   else if(page==='tests') renderTestsHome();
 
@@ -6163,6 +6257,704 @@ if(_origRenderTestsHome) {
     renderTestsHomeWithGenerate();
   };
 }
+
+
+
+// ════════════════════════════════════════════════════════════════════
+// IELTS COURSE — COMPLETE BEGINNER TO ADVANCED
+// ════════════════════════════════════════════════════════════════════
+
+const COURSE_DATA = [
+  {
+    id:'A1', level:1, icon:'🌱', color:'#059669', colorDim:'#052e16',
+    title:'Foundation', subtitle:'IELTS basics & test format',
+    targetBand:'0 → 4.5',
+    units:[
+      {
+        id:'A1U1', title:'What is IELTS?', icon:'📋',
+        desc:'Test format, sections, scoring, and registration',
+        lessons:[
+          { id:'A1U1L1', title:'IELTS Overview', xp:20, type:'theory',
+            steps:[
+              {type:'intro', heading:'Welcome to IELTS Foundation 🌱',
+               body:`IELTS (International English Language Testing System) is the world's most popular English proficiency test. Over 3 million people take it every year.\n\n**Two versions exist:**\n• **Academic** — for university admission, professional registration\n• **General Training** — for work experience, secondary education, migration\n\nThis course focuses on **IELTS Academic**, the most common version.`},
+              {type:'info', heading:'The 4 Skills',
+               body:`IELTS tests you on **4 skills** in the same order every time:\n\n1️⃣ **Listening** — 30 min + 10 min transfer (40 questions)\n2️⃣ **Reading** — 60 min (40 questions, 3 passages)\n3️⃣ **Writing** — 60 min (Task 1: 20 min, Task 2: 40 min)\n4️⃣ **Speaking** — 11–14 min (3 parts, face-to-face with examiner)\n\n⏱️ Total time: ~2 hours 45 minutes`},
+              {type:'info', heading:'The Band Scale',
+               body:`IELTS scores are reported on a **1–9 Band Scale** in 0.5 increments:\n\n| Band | Level |\n|---|---|\n| 9 | Expert user |\n| 8 | Very good user |\n| 7 | Good user |\n| 6 | Competent user |\n| 5 | Modest user |\n| 4 | Limited user |\n\nYour **Overall Band** = average of 4 skill bands (rounded to nearest 0.5).\n\n🎯 **Common requirements:** Universities need 6.5–7.5. Migration needs 6.0–7.0.`},
+              {type:'quiz', heading:'Quick Check ✅',
+               q:'How many sections does IELTS have?',
+               opts:['2 (Reading & Writing)','3 (Listening, Reading, Writing)','4 (Listening, Reading, Writing, Speaking)','5 (including Grammar)'],
+               ans:2, exp:'IELTS always has exactly 4 sections: Listening, Reading, Writing, and Speaking.'}
+            ]
+          },
+          { id:'A1U1L2', title:'Scoring Explained', xp:20, type:'theory',
+            steps:[
+              {type:'intro', heading:'How Bands Are Calculated 📊',
+               body:`Understanding how bands work helps you target your weak areas strategically.\n\n**Key fact:** Each of the 4 skills carries **equal weight** in your overall score.\n\nSo if you score: L:6.0, R:7.0, W:6.5, S:7.0\n→ Average = 6.625 → Rounded = **6.5 Overall**`},
+              {type:'info', heading:'Listening & Reading Scoring',
+               body:`These are marked objectively by correct answers:\n\n**Listening (40 questions):**\n35–36 = Band 8 | 30–31 = Band 7 | 23–25 = Band 6\n\n**Reading (40 questions):**\n35–36 = Band 8 | 30–32 = Band 7 | 23–26 = Band 6\n\n💡 **Strategy:** In Listening, you can't go back. In Reading, you can. Use this wisely.`},
+              {type:'info', heading:'Writing & Speaking Scoring',
+               body:`These are marked by trained human examiners on **4 criteria** each:\n\n**Writing criteria:**\n• Task Achievement/Response (25%)\n• Coherence & Cohesion (25%)\n• Lexical Resource — vocabulary (25%)\n• Grammatical Range & Accuracy (25%)\n\n**Speaking criteria:**\n• Fluency & Coherence (25%)\n• Lexical Resource (25%)\n• Grammatical Range & Accuracy (25%)\n• Pronunciation (25%)`},
+              {type:'quiz', heading:'Quick Check ✅',
+               q:'If you score L:5, R:6, W:5, S:6, what is your Overall Band?',
+               opts:['5.0','5.5','6.0','6.5'],
+               ans:1, exp:'Average = (5+6+5+6)/4 = 5.5. IELTS rounds to the nearest 0.5.'}
+            ]
+          },
+          { id:'A1U1L3', title:'Test Day Strategy', xp:25, type:'strategy',
+            steps:[
+              {type:'intro', heading:'Test Day: Before You Start 🗓️',
+               body:`**What to bring:**\n• Valid passport (same as registration)\n• No mechanical pencils — use HB pencil for Listening & Reading answer sheets\n• Pen for Writing\n\n**Arrive:** 30 minutes early for registration\n\n**Format tip:** Listening and Reading are done in ONE sitting. Writing follows. Speaking is often on a different day.`},
+              {type:'info', heading:'Time Management Essentials',
+               body:`**Listening:** You have 10 extra minutes at the end to transfer answers to the answer sheet. Use this time carefully — don't rush.\n\n**Reading:** 60 minutes for 3 passages. Aim for ~20 minutes per passage. If stuck, MOVE ON and return.\n\n**Writing:** Spend 20 min on Task 1, 40 min on Task 2. Task 2 is worth more marks.\n\n**Speaking:** No preparation time between parts. Answers in Parts 1 & 3 should be 2–3 sentences minimum.`},
+              {type:'info', heading:'Common Beginner Mistakes',
+               body:`❌ **Spelling errors** — every spelling mistake in Listening/Reading = wrong answer\n❌ **Going over word limit** — "NO MORE THAN 3 WORDS" means exactly that\n❌ **Writing Task 1 opinion** — Task 1 is description only, NOT your opinion\n❌ **Short Task 2 essays** — under 250 words = automatic band penalty\n❌ **Not reading instructions** — question type and word limit are always stated\n\n✅ Always read the instructions twice before answering.`},
+              {type:'quiz', heading:'Quick Check ✅',
+               q:'In Writing, how much time should you spend on Task 2?',
+               opts:['20 minutes','30 minutes','40 minutes','50 minutes'],
+               ans:2, exp:'Task 2 is worth more marks (2/3 of the Writing score), so 40 minutes is the recommended time allocation.'}
+            ]
+          }
+        ]
+      },
+      {
+        id:'A1U2', title:'Basic Vocabulary', icon:'🔤',
+        desc:'500 essential academic words for IELTS beginners',
+        lessons:[
+          { id:'A1U2L1', title:'Academic Word List: Set 1', xp:25, type:'vocab',
+            steps:[
+              {type:'intro', heading:'The Academic Word List 📚',
+               body:`The AWL (Academic Word List) contains 570 word families that appear frequently in academic texts.\n\nLearning these words is one of the **highest-ROI activities** for IELTS preparation.\n\nIn this lesson we'll study 10 essential words with IELTS-context examples.`},
+              {type:'vocab_set', heading:'Words 1–5',
+               words:[
+                {word:'Analyse', forms:'analysis, analytical', def:'To examine something in detail to understand or explain it.',
+                 example:'The graph shows an analysis of employment trends from 2000 to 2020.'},
+                {word:'Concept', forms:'conceptual, conceptualise', def:'An abstract idea or general notion.',
+                 example:'The concept of sustainable development is central to modern urban planning.'},
+                {word:'Constitute', forms:'constitution, constituent', def:'To be or form a part of something.',
+                 example:'Women constitute 48% of the workforce in this sector.'},
+                {word:'Data', forms:'datum (singular)', def:'Facts and statistics collected for reference or analysis.',
+                 example:'The data suggests a significant increase in renewable energy usage.'},
+                {word:'Establish', forms:'establishment, established', def:'To set up or bring about something on a firm basis.',
+                 example:'The study establishes a clear link between diet and cognitive performance.'},
+               ]},
+              {type:'vocab_set', heading:'Words 6–10',
+               words:[
+                {word:'Factor', forms:'factorial, factoring', def:'A circumstance contributing to a result.',
+                 example:'Economic factors play a major role in student university choices.'},
+                {word:'Function', forms:'functional, functionally', def:'The purpose of something; to work or operate.',
+                 example:'The primary function of this policy is to reduce carbon emissions.'},
+                {word:'Impact', forms:'impactful, to impact', def:'A strong effect or influence.',
+                 example:'Climate change has a significant impact on agricultural productivity.'},
+                {word:'Major', forms:'majority, majorly', def:'More important, serious, or significant than others.',
+                 example:'A major concern in IELTS Writing is task achievement.'},
+                {word:'Research', forms:'researcher, researched', def:'Systematic investigation to establish facts.',
+                 example:'Recent research indicates that bilingual children have better problem-solving skills.'},
+               ]},
+              {type:'quiz', heading:'Vocabulary Check ✅',
+               q:"Which sentence uses 'constitute' correctly?",
+               opts:['The report constitutes to the findings.','Women constitute 45% of the total workforce.','He constituted a new idea about the economy.','The factor was constituted by the government.'],
+               ans:1, exp:"'Constitute' means 'to make up or form'. 'Women constitute 45%' = women form/make up 45%. The other options misuse the word."}
+            ]
+          },
+          { id:'A1U2L2', title:'Connectors & Discourse Markers', xp:30, type:'vocab',
+            steps:[
+              {type:'intro', heading:'Connectors: The Glue of Good Writing 🔗',
+               body:`Connectors (also called discourse markers or linking words) show the **relationship between ideas**. Using them correctly is essential for Band 6+ in Coherence & Cohesion.\n\nExaminers want to see a **variety** of connectors used **accurately**. Repeating "however" or "furthermore" in every sentence will NOT improve your band.`},
+              {type:'info', heading:'Connectors by Function',
+               body:`**Adding information:**\nFurthermore | Moreover | In addition | Additionally | What is more\n\n**Contrasting:**\nHowever | Nevertheless | On the other hand | In contrast | Whereas | Although\n\n**Giving reasons:**\nBecause | Since | As | Due to | Owing to | As a result of\n\n**Showing results:**\nTherefore | Consequently | As a result | Hence | Thus | This means that\n\n**Exemplifying:**\nFor example | For instance | Such as | Including | Namely | In particular`},
+              {type:'info', heading:'Common Connector Mistakes',
+               body:`❌ **"Despite of"** → Correct: "Despite" OR "In spite of"\n❌ **"Although... but"** → Never use both. Pick one.\n❌ **"Due to the reason that"** → Wordy. Use "Because"\n❌ **"On the contrary"** — This means the previous statement is wrong. Not for general contrast.\n❌ **Starting every sentence with "However"** — Use a variety.\n\n✅ **Band 7 trick:** Use sentence adverbials: *"This has led to..."*, *"What this means is..."*, *"The implication here is..."*`},
+              {type:'quiz', heading:'Connector Check ✅',
+               q:"Complete: 'Air pollution has increased significantly. _____, respiratory diseases have become more common.'",
+               opts:['Although','Despite','Consequently','In spite of'],
+               ans:2, exp:"'Consequently' shows a result/effect relationship — pollution increased, and AS A RESULT, respiratory diseases increased. 'Although' and 'Despite' show contrast, not cause-effect."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id:'B1', level:2, icon:'📖', color:'#2563eb', colorDim:'#1e3a5f',
+    title:'Elementary', subtitle:'Reading & Listening foundations',
+    targetBand:'4.5 → 5.5',
+    units:[
+      {
+        id:'B1U1', title:'Reading Skills', icon:'📰',
+        desc:'Skimming, scanning, and understanding passage structure',
+        lessons:[
+          { id:'B1U1L1', title:'Skimming & Scanning', xp:30, type:'skill',
+            steps:[
+              {type:'intro', heading:'Two Critical Reading Techniques 🔍',
+               body:`IELTS Reading gives you 60 minutes for 3 passages (~900 words each) = 40 questions.\n\nYou don't have time to read every word carefully. You need **two techniques:**\n\n🔍 **Skimming** — Reading quickly to get the GENERAL IDEA\n🎯 **Scanning** — Searching specifically for a FACT, NUMBER, or NAME`},
+              {type:'info', heading:'How to Skim Effectively',
+               body:`**Skimming a passage (target: 2 minutes):**\n\n1. Read the **title and first paragraph** fully\n2. Read **only the first sentence** of each paragraph\n3. Read the **last paragraph** fully\n4. Note any **subheadings, bold text, or italics**\n\nAfter skimming, you should know:\n✅ What is the topic?\n✅ What is the author's general position?\n✅ How is the text structured?\n\n⚠️ Do NOT read every word during skimming — this defeats the purpose.`},
+              {type:'info', heading:'How to Scan Effectively',
+               body:`**Scanning for specific information:**\n\nScanning is used when you need to find a specific answer location in the passage.\n\n**Step 1:** Identify keywords in the question (numbers, names, dates, specific nouns)\n**Step 2:** Let your eyes move quickly across the passage looking for those exact words or synonyms\n**Step 3:** Once found, read carefully around that area\n\n💡 **IELTS key:** Questions usually follow the order of the passage (except Matching Headings). So if Q5 was in paragraph 2, Q6 is likely in paragraph 2 or 3.`},
+              {type:'quiz', heading:'Technique Check ✅',
+               q:"You need to find what year a scientist published their research. Which technique do you use?",
+               opts:['Skimming — read everything quickly','Scanning — search for the specific year/name','Intensive reading — read every sentence carefully','Inferring — guess from context'],
+               ans:1, exp:"Scanning is used when you know exactly WHAT you're looking for (a year, a name, a number). You move your eyes quickly across the text looking for that specific type of information."}
+            ]
+          },
+          { id:'B1U1L2', title:'True/False/Not Given', xp:35, type:'skill',
+            steps:[
+              {type:'intro', heading:'TFNG — The Most Feared Question Type 😰',
+               body:`True/False/Not Given (TFNG) confuses many students because of the difference between **FALSE** and **NOT GIVEN**.\n\n**TRUE** = The passage explicitly states this / it can be clearly inferred\n**FALSE** = The passage explicitly CONTRADICTS this\n**NOT GIVEN** = The passage does NOT mention this at all\n\n🚨 The most common mistake: marking NOT GIVEN as FALSE because "I didn't know this was true".`},
+              {type:'info', heading:'The KEY Difference: FALSE vs NOT GIVEN',
+               body:`**FALSE** = The text gives OPPOSITE information\nExample: Statement says "Sales increased in 2019"\nText says "Sales fell sharply in 2019" → FALSE\n\n**NOT GIVEN** = The text simply doesn't mention it\nExample: Statement says "Sales increased in 2019"\nText says "The company expanded its operations" (no sales data) → NOT GIVEN\n\n💡 **Rule:** If you cannot find the information anywhere in the passage → NOT GIVEN\nIf the passage gives the OPPOSITE information → FALSE`},
+              {type:'info', heading:'TFNG Strategy — Step by Step',
+               body:`1. **Underline keywords** in the statement\n2. **Scan** the passage for those keywords (or synonyms)\n3. **Read carefully** around the area where you find them\n4. **Compare:** Does the passage say the same, opposite, or nothing?\n\n⚡ **Speed tip:** Spend max 90 seconds per question. If you can't decide between FALSE and NOT GIVEN after 90 seconds, choose NOT GIVEN (it's more likely when you can't find clear contradiction).\n\n⚠️ **Trap:** "The passage doesn't say this is TRUE, so it must be FALSE." → WRONG! That logic gives you NOT GIVEN, not FALSE.`},
+              {type:'quiz', heading:'TFNG Practice ✅',
+               q:"Passage says: 'The Eiffel Tower was completed in 1889 and was the world's tallest structure at the time.'\n\nStatement: 'The Eiffel Tower is still the world's tallest structure today.'",
+               opts:['TRUE','FALSE','NOT GIVEN'],
+               ans:1, exp:"FALSE. The passage says it WAS the tallest structure 'at the time', implying it is no longer. The word 'today' contradicts 'at the time'. This is explicit contradiction = FALSE."}
+            ]
+          }
+        ]
+      },
+      {
+        id:'B1U2', title:'Listening Skills', icon:'🎧',
+        desc:'Note-taking, prediction, and form completion',
+        lessons:[
+          { id:'B1U2L1', title:'Listening Strategy', xp:30, type:'skill',
+            steps:[
+              {type:'intro', heading:'IELTS Listening: The Big Picture 🎧',
+               body:`IELTS Listening has **4 sections** with increasing difficulty:\n\n📍 **Section 1** — Social/everyday conversation (2 speakers)\n📍 **Section 2** — Monologue on everyday topic (1 speaker)\n📍 **Section 3** — Academic discussion (2–4 speakers)\n📍 **Section 4** — Academic lecture/monologue (1 speaker)\n\nAll audio plays **once only** — no replays on test day!\n\nThe recording is played in one go. Between sections, you get a brief pause.`},
+              {type:'info', heading:'The Prediction Technique',
+               body:`Before the audio plays, you get time to look at the questions. USE this time to **predict** what you'll hear.\n\n**For form completion:**\nLook at the gaps and predict what type of information fills each:\n- "Name: ___" → A person's name\n- "Price: £___" → A number\n- "Date: ___" → A time/date\n- "Location: ___" → A place\n\n**For multiple choice:**\nRead all options. Underline keywords. Think about what synonyms or paraphrases you might hear.\n\n💡 The audio almost never uses the exact words from the questions — it uses PARAPHRASES.`},
+              {type:'info', heading:'Note-Taking & Spelling',
+               body:`**Spelling counts.** Every misspelled word = wrong answer.\n\nCommon problem areas:\n- British vs American spelling: **colour/color**, **recognise/recognize** — both accepted\n- Numbers spoken as words: "forty-five" = write 45\n- Plural vs singular: "three room**s**" — don't forget the S\n\n**Note-taking shorthand:**\nYou don't need to write full sentences. Use:\n• Numbers: 45, £200, 3pm\n• Abbreviations: St = Street, Mon = Monday\n• First letter for names: J Smith = J.S.\n\n⚠️ Transfer your answers to the answer sheet during the 10-minute transfer period — check spelling again!`},
+              {type:'quiz', heading:'Listening Strategy Check ✅',
+               q:"The audio says: 'The cost is two hundred and fifty dollars.' What do you write for 'Price: $___'?",
+               opts:['two hundred and fifty','two hundred and fifty dollars','250','$250'],
+               ans:2, exp:"Write '250'. The question already shows '$', so you don't need to write the symbol again. Write numbers as numerals, not words, unless the question specifically asks for words."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id:'B2', level:3, icon:'✍️', color:'#7c3aed', colorDim:'#2e1065',
+    title:'Pre-Intermediate', subtitle:'Writing Task 1 & structured sentences',
+    targetBand:'5.5 → 6.0',
+    units:[
+      {
+        id:'B2U1', title:'Writing Task 1', icon:'📊',
+        desc:'Describe charts, graphs, maps and processes clearly',
+        lessons:[
+          { id:'B2U1L1', title:'Task 1: Graph Description', xp:40, type:'writing',
+            steps:[
+              {type:'intro', heading:'Writing Task 1: What the Examiner Wants ✍️',
+               body:`Task 1 asks you to **describe visual information** — a graph, chart, map, or process diagram.\n\n**You must:**\n✅ Write at least 150 words\n✅ Describe the MAIN FEATURES — not every detail\n✅ Make COMPARISONS where relevant\n✅ NOT give your opinion\n✅ NOT explain WHY the data is what it is (unless the task asks)\n\n**Band 7+ requires:** A clear overview that identifies the most significant trends.`},
+              {type:'info', heading:'The 4-Paragraph Structure',
+               body:`**Paragraph 1 — Introduction (1–2 sentences):**\nParaphrase the task. Never copy the task word-for-word.\n*"The line graph illustrates changes in..."*\n\n**Paragraph 2 — Overview (2–3 sentences):**\nState the 2–3 most important trends/features. This is the MOST IMPORTANT paragraph for Task Achievement.\n*"Overall, it is clear that... while..."*\n\n**Paragraphs 3–4 — Details:**\nSupport the overview with specific data and comparisons. Include numbers, percentages, dates.`},
+              {type:'info', heading:'Essential Language for Graphs',
+               body:`**Trends going UP:** 🔺\nrose, increased, grew, climbed, surged, doubled, reached a peak\n\n**Trends going DOWN:** 🔻\nfell, decreased, declined, dropped, plummeted, halved, reached a trough\n\n**Stable trends:** ➡️\nremained stable/steady/constant, plateaued, levelled off\n\n**Approximations (for imprecise data):**\napproximately, roughly, around, just over/under, nearly, almost\n\n**Making comparisons:**\nhigher than, lower than, compared to, in contrast to, whereas, while, by contrast`},
+              {type:'quiz', heading:'Task 1 Check ✅',
+               q:"You're writing Task 1 about a bar chart. Which of these should go in the 'Overview' paragraph?",
+               opts:["In 2000, sales were $50 million, rising to $120 million by 2010.","Overall, sales showed a consistent upward trend across all regions, with the exception of Asia.","The bar chart shows sales figures for the company from 2000 to 2020.","The company should invest more in Asian markets."],
+               ans:1, exp:"The Overview identifies the BIGGEST trends without specific numbers. Option B correctly gives the general trend. Option A is detail (numbers), Option C is the introduction, Option D is an opinion (never appropriate in Task 1)."}
+            ]
+          },
+          { id:'B2U1L2', title:'Task 1: Model Answer Walkthrough', xp:45, type:'writing',
+            steps:[
+              {type:'intro', heading:'Studying a Band 7 Answer 📝',
+               body:`The fastest way to improve Task 1 is to read and ANALYSE high-band answers.\n\nWe'll work through a complete Band 7 response, identifying exactly what makes it successful.\n\n📊 **The Task:** *"The graph below shows the percentage of households with internet access in four European countries between 2000 and 2015. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."*`},
+              {type:'info', heading:'Band 7 Model Answer',
+               body:`**Introduction:**\nThe line graph compares the proportion of households with internet connectivity in four European nations over a 15-year period from 2000 to 2015.\n\n**Overview:**\nOverall, internet access rose substantially in all four countries throughout the period. Germany and France consistently maintained the highest rates of connectivity, while Spain and Portugal lagged behind, though both saw significant growth.\n\n**Details — higher countries:**\nIn 2000, Germany led with roughly 30% of households online, followed closely by France at 25%. Both countries showed steady growth, with Germany peaking at around 85% and France reaching approximately 80% by 2015.\n\n**Details — lower countries:**\nSpain and Portugal began the period with considerably lower rates, at approximately 10% and 8% respectively. However, both experienced rapid expansion, particularly after 2005, ultimately reaching around 70% and 60% by 2015.`},
+              {type:'info', heading:'Why This Gets Band 7',
+               body:`✅ **Task Achievement:** Clear overview identifies main trends. All countries covered. Comparisons made.\n\n✅ **Coherence & Cohesion:** Logical 4-paragraph structure. Good connectors: "Overall", "while", "however", "ultimately", "though both saw"\n\n✅ **Lexical Resource:** Varied vocabulary: "proportion", "connectivity", "lagged behind", "peaked", "substantial growth", "considerably lower"\n\n✅ **Grammar:** Varied structures: past simple for trends, comparatives, passive, complex sentences.\n\n**Word count:** ~168 words — comfortably above 150.\n\n💡 **Key lesson:** The overview is the backbone. Write it first, then support it with details.`},
+              {type:'quiz', heading:'Model Answer Check ✅',
+               q:"What is the purpose of the 'Overview' paragraph in Task 1?",
+               opts:['To introduce the topic by copying the question','To list all the specific numbers and percentages','To identify the most significant overall trends without numbers','To give your opinion on the trends'],
+               ans:2, exp:"The overview identifies the 2–3 most important trends WITHOUT specific numbers (save those for the detail paragraphs). It answers the question: 'What is the most important thing this data shows?'"}
+            ]
+          }
+        ]
+      },
+      {
+        id:'B2U2', title:'Grammar: Complex Sentences', icon:'📐',
+        desc:'Subordinate clauses, relative clauses & passive voice',
+        lessons:[
+          { id:'B2U2L1', title:'Subordinate Clauses', xp:35, type:'grammar',
+            steps:[
+              {type:'intro', heading:'Why Grammar Matters for Band 6+ 📐',
+               body:`**Grammatical Range and Accuracy** accounts for 25% of your Writing and Speaking scores.\n\nBand 5 uses mostly simple sentences: *"The graph shows an increase. The increase was large."*\n\nBand 6–7 uses complex sentences: *"The graph shows a large increase, which occurred primarily in the second quarter."*\n\nBand 7–8 uses a variety of complex structures with few errors.`},
+              {type:'info', heading:'Types of Subordinate Clauses',
+               body:`**Adverbial clauses (time, reason, contrast, condition):**\n• *Although sales declined in Europe*, they remained strong in Asia.\n• *Because the population grew rapidly*, demand for housing increased.\n• *If the trend continues*, unemployment will reach 10% by 2030.\n\n**Relative clauses (who, which, that, where):**\n• The company, *which was founded in 1985*, now employs 50,000 people.\n• Cities *where public transport is efficient* tend to have lower carbon emissions.\n\n**Noun clauses (that, what, whether):**\n• Research suggests *that diet affects cognitive performance*.\n• The question is *whether governments should regulate social media*.`},
+              {type:'quiz', heading:'Grammar Check ✅',
+               q:"Which sentence is grammatically correct and most appropriate for IELTS Writing?",
+               opts:["Although the economy grew, but unemployment increased.","Despite of the economic growth, unemployment increased.","Although the economy grew, unemployment increased.","However the economy grew, unemployment increased."],
+               ans:2, exp:"Option C is correct. 'Although + clause, clause' is the correct structure. Option A has 'although...but' (never use both). Option B should be 'Despite' (no 'of'). Option D: 'However' is an adverb, not a conjunction — it can't connect two clauses this way."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id:'C1', level:4, icon:'🎤', color:'#db2777', colorDim:'#500724',
+    title:'Intermediate', subtitle:'Speaking fluency & Writing Task 2',
+    targetBand:'6.0 → 6.5',
+    units:[
+      {
+        id:'C1U1', title:'Speaking All Parts', icon:'💬',
+        desc:'Fluency, pronunciation, and extended answers',
+        lessons:[
+          { id:'C1U1L1', title:'Speaking Part 2: Cue Cards', xp:45, type:'speaking',
+            steps:[
+              {type:'intro', heading:'Speaking Part 2: 2 Minutes of Focus 🎤',
+               body:`Part 2 is the cue card task. You get:\n• 1 minute to prepare (make notes!)\n• 1–2 minutes to speak (aim for 2 full minutes)\n\n**Common mistake:** Stopping after 60–90 seconds because you run out of ideas.\n\n**The fix:** Use the PEEL structure + storytelling techniques to fill 2 minutes consistently.`},
+              {type:'info', heading:'The PEEL Structure for Cue Cards',
+               body:`**P — Point:** State your main idea (10 sec)\n*"I'd like to talk about a trip I took to the Scottish Highlands..."*\n\n**E — Elaborate:** Add background/context (30 sec)\n*"I went with my university friends about three years ago. We had been planning it for months..."*\n\n**E — Example/Evidence:** Specific details, sensory description (60 sec)\n*"What made it particularly memorable was the landscape. The mountains were covered in heather..."*\n\n**L — Link:** How it affected you / why it matters (20 sec)\n*"That experience changed my perspective on..."*\n\n⏱️ Total: ~2 minutes when spoken at natural pace.`},
+              {type:'info', heading:'Vocabulary Boosters for Part 2',
+               body:`**Describing experiences:**\nwhat struck me most was... | I was particularly struck by... | I vividly remember... | it left a lasting impression | it was quite an eye-opening experience\n\n**Adding detail:**\nto be more specific... | in particular... | what I mean is... | the thing about it was...\n\n**Time language:**\nat the time... | looking back on it... | even now... | ever since then...\n\n💡 **Pronunciation tip:** Don't rush. A slightly slower pace with clear enunciation scores better than a fast, unclear delivery. Examiners mark on CLARITY, not speed.`},
+              {type:'quiz', heading:'Speaking Check ✅',
+               q:"Your cue card says 'Describe a book you enjoyed reading.' You finish in 60 seconds. What should you do?",
+               opts:["Stop — 60 seconds is enough for Part 2","Add more details about how the book affected you and why you'd recommend it","Ask the examiner to give you another cue card","Repeat what you already said"],
+               ans:1, exp:"You should aim for the full 2 minutes. Add more detail — describe a specific scene, how it made you feel, who you'd recommend it to, how it changed your thinking. Never stop early in Part 2."}
+            ]
+          }
+        ]
+      },
+      {
+        id:'C1U2', title:'Writing Task 2', icon:'📝',
+        desc:'Essay types, argument structure, and high-band vocabulary',
+        lessons:[
+          { id:'C1U2L1', title:'Task 2: Essay Types', xp:45, type:'writing',
+            steps:[
+              {type:'intro', heading:'4 Essay Types You Must Know 📝',
+               body:`IELTS Writing Task 2 always asks one of these question types. Identifying the TYPE before you write is critical — writing the wrong type of essay is the fastest way to lose marks.\n\nThe instruction words tell you the type.`},
+              {type:'info', heading:'The 4 Essay Types',
+               body:`**1. Opinion (Agree/Disagree)**\n*"Some people think X. To what extent do you agree or disagree?"*\n→ Give YOUR clear opinion. Support it with 2–3 reasons.\n\n**2. Discussion (Both Views)**\n*"Discuss both views and give your own opinion."*\n→ Present BOTH sides fairly, then clearly state YOUR position.\n\n**3. Problem/Solution**\n*"What are the causes/problems? What solutions can you suggest?"*\n→ Paragraph for causes, paragraph for solutions. Be specific.\n\n**4. Advantages/Disadvantages**\n*"Discuss the advantages and disadvantages."*\n→ Present pros and cons. Often also asks for your opinion.`},
+              {type:'info', heading:'Universal Task 2 Structure',
+               body:`**Introduction (2–3 sentences):**\nParaphrase the question topic → State your position/purpose\n\n**Body Paragraph 1 (4–6 sentences):**\nTopic sentence → Explanation → Example → Link\n\n**Body Paragraph 2 (4–6 sentences):**\nTopic sentence → Explanation → Example → Link\n\n**Conclusion (2–3 sentences):**\nRephrase your main argument → Recommendation or prediction (optional)\n\n💡 Target: 270–290 words. Under 250 = automatic penalty. Over 320 = usually unfocused.`},
+              {type:'quiz', heading:'Essay Type Check ✅',
+               q:"The question says: 'Many people believe that social media has more disadvantages than advantages. Discuss both views and give your own opinion.' What type is this?",
+               opts:['Opinion (Agree/Disagree)','Discussion (Both Views)','Problem/Solution','Advantages/Disadvantages'],
+               ans:1, exp:"'Discuss both views' is the key instruction for the Discussion essay type. Even though it mentions advantages/disadvantages, the instruction is to present both views and then give YOUR opinion — that's the Discussion format."}
+            ]
+          },
+          { id:'C1U2L2', title:'Band 7 Vocabulary Techniques', xp:50, type:'vocab',
+            steps:[
+              {type:'intro', heading:'Vocabulary: From Band 6 to Band 7 🚀',
+               body:`The difference between Band 6 and Band 7 vocabulary is often:\n\n❌ **Band 6:** Correct but repetitive and simple\n✅ **Band 7:** Varied, precise, and collocated naturally\n\nThis lesson gives you exact substitution strategies to upgrade your vocabulary score.`},
+              {type:'info', heading:'Topic-Specific Vocabulary: Environment',
+               body:`**Instead of "bad for the environment":**\n→ environmentally damaging | ecologically harmful | detrimental to biodiversity | contributing to ecological degradation\n\n**Instead of "help the environment":**\n→ mitigate environmental impact | promote ecological sustainability | curb carbon emissions | foster environmentally conscious behaviour\n\n**Strong collocations:**\n• carbon emissions (not "carbon pollution")\n• biodiversity loss (not "loss of animals")\n• renewable energy sources (not "green energy")\n• greenhouse gas emissions (not "gases that warm the planet")`},
+              {type:'info', heading:'Topic-Specific Vocabulary: Technology',
+               body:`**Instead of "technology is changing the world":**\n→ technological innovation is reshaping society | digitalisation is transforming traditional industries\n\n**Instead of "bad effects of technology":**\n→ adverse consequences of technological dependency | detrimental impact of excessive screen time\n\n**Strong collocations:**\n• artificial intelligence (not "robot thinking")\n• digital literacy (not "knowing about computers")\n• cybersecurity threats (not "internet dangers")\n• automation of the workforce (not "robots taking jobs")\n\n💡 **The paraphrase technique:** Learn 3 ways to say every common idea. Variety = higher Lexical Resource score.`},
+              {type:'quiz', heading:'Vocabulary Upgrade Check ✅',
+               q:"Upgrade this phrase for Band 7: 'Too much technology is bad for children.'",
+               opts:["Technology is very bad for children.","Excessive technological exposure can be detrimental to children's cognitive development.","A lot of technology is not good for young people.","Technology hurts children if used too much."],
+               ans:1, exp:"Option B uses precise academic vocabulary: 'excessive' (instead of 'too much'), 'technological exposure' (instead of 'technology'), 'detrimental' (instead of 'bad'), 'cognitive development' (specific impact). This is Band 7+ level phrasing."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id:'C1P', level:5, icon:'🚀', color:'#d97706', colorDim:'#451a03',
+    title:'Upper-Intermediate', subtitle:'Band 7 strategies across all skills',
+    targetBand:'6.5 → 7.5',
+    units:[
+      {
+        id:'C1PU1', title:'Reading: Band 7 Techniques', icon:'🔬',
+        desc:'Inference, attitude questions, and time management',
+        lessons:[
+          { id:'C1PU1L1', title:'Inference & Attitude', xp:55, type:'skill',
+            steps:[
+              {type:'intro', heading:'Inference Questions: Reading Between the Lines 🔬',
+               body:`Band 7+ Reading requires you to understand what a writer **implies** but doesn't state directly.\n\nInference questions often look like:\n• *"What is the writer's attitude towards X?"*\n• *"The writer implies that..."*\n• *"It can be inferred from paragraph 3 that..."*\n\n**The key skill:** Recognising tone, word choice, and logical implications.`},
+              {type:'info', heading:'Identifying Writer Attitude',
+               body:`Writers signal their attitude through **word choice** — not just through direct statements.\n\n**Positive attitude signals:** advocates, praises, highlights benefits, notes the importance of, rightly observes\n\n**Negative attitude signals:** criticises, warns against, laments, dismisses, erroneously suggests, fails to account for\n\n**Cautious/Neutral signals:** acknowledges, notes, suggests, posits, it could be argued\n\n💡 **Tip:** When the writer describes something using negatively-loaded words ("alarming", "misguided", "naive"), they're criticising it — even without saying "I disagree."`},
+              {type:'quiz', heading:'Inference Check ✅',
+               q:"The text says: 'While proponents of the policy celebrate its ambitious targets, economists have been less enthusiastic, pointing to a notable absence of credible funding mechanisms.' What is the writer's likely view?",
+               opts:['The writer fully supports the policy','The writer is sceptical about the policy being achievable','The writer has no opinion either way','The writer thinks economists are wrong'],
+               ans:1, exp:"The phrase 'notable absence of credible funding mechanisms' signals scepticism. The writer uses economists' reservations to cast doubt on the policy's feasibility. 'Less enthusiastic' and 'absence of credible' are loaded, critical terms."}
+            ]
+          }
+        ]
+      },
+      {
+        id:'C1PU2', title:'Writing: Band 7+ Essays', icon:'🖊️',
+        desc:'Sophisticated argument, hedging language & examiner traps',
+        lessons:[
+          { id:'C1PU2L1', title:'Sophisticated Argument Techniques', xp:60, type:'writing',
+            steps:[
+              {type:'intro', heading:'What Separates Band 7 from Band 6 Writing 🖊️',
+               body:`Band 6 answers are **correct but predictable**.\nBand 7 answers are **nuanced, sophisticated, and precise**.\n\nThe key differences:\n• Band 7 **qualifies** arguments: "While this is generally true, there are cases where..."\n• Band 7 **uses hedging language**: "This suggests that...", "It could be argued that..."\n• Band 7 **anticipates counterarguments** and addresses them\n• Band 7 **uses precise, collocated vocabulary** throughout`},
+              {type:'info', heading:'Hedging Language for Band 7+',
+               body:`Hedging shows **academic sophistication** — you acknowledge complexity rather than making absolute statements.\n\n**Strong hedges:**\n• It could be argued that...\n• Evidence suggests that...\n• This appears to indicate...\n• In many cases...\n• To a large extent...\n• While this is true for most cases...\n\n**Using hedges in Task 2:**\n❌ "Technology destroys family relationships."\n✅ "Excessive technology use can erode the quality of family interactions, particularly when devices are used during shared mealtimes."\n\nThe second is more precise AND more defensible — examiners reward this nuance.`},
+              {type:'quiz', heading:'Sophistication Check ✅',
+               q:"Which sentence best demonstrates Band 7+ academic writing style?",
+               opts:["Technology is bad and governments should ban it.","Some people think technology is bad but others don't agree with this.","While technological innovation offers significant economic benefits, its unregulated expansion poses considerable risks to social cohesion and mental wellbeing.","Technology has good and bad effects on society."],
+               ans:2, exp:"Option C shows Band 7+ features: hedging ('while'), precise vocabulary ('unregulated expansion', 'social cohesion', 'mental wellbeing'), nuanced argument (acknowledging benefits while identifying risks), and sophisticated sentence structure."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    id:'C2', level:6, icon:'⭐', color:'#f59e0b', colorDim:'#422006',
+    title:'Advanced', subtitle:'Band 8–9 mastery & exam finalisation',
+    targetBand:'7.5 → 9.0',
+    units:[
+      {
+        id:'C2U1', title:'Band 8–9 Writing', icon:'🏆',
+        desc:'Examiner-level analysis, flawless grammar & native-level vocabulary',
+        lessons:[
+          { id:'C2U1L1', title:'Band 9 Writing Secrets', xp:80, type:'writing',
+            steps:[
+              {type:'intro', heading:'The Band 9 Standard 🏆',
+               body:`Band 9 is described as "Expert user — fully operational command of the language."\n\nFor Writing, Band 9 means:\n✅ Full task completion with deep insight\n✅ Seamlessly cohesive text that flows naturally\n✅ Wide vocabulary used with full flexibility and precision\n✅ Wide range of grammatical structures with virtually no errors\n\n**Reality check:** Band 9 is extremely rare. Most native English speakers would score Band 8–8.5. But studying Band 9 principles dramatically improves Band 7–8 performance.`},
+              {type:'info', heading:'Band 9 Vocabulary Techniques',
+               body:`**1. Nominalisation** — turning verbs into nouns:\n*"Governments need to act quickly" → "Swift governmental action is imperative"*\n\n**2. Lexical variation** — never repeat the same content word:\n*"pollution → environmental contamination → ecological damage → toxic emissions"*\n\n**3. Precise quantification:**\n*"many people" → "a substantial proportion of the population"*\n*"big difference" → "a marked disparity"*\n\n**4. Idiomatic academic phrases:**\n• "at the expense of..." | "to the detriment of..." | "in the wake of..."\n• "poses a significant threat to..." | "warrants urgent attention"\n• "is contingent upon..." | "is inextricably linked to..."`},
+              {type:'info', heading:'Band 9 Grammar Structures',
+               body:`**Cleft sentences (emphatic):**\n*"It is the lack of funding that prevents progress."*\n*"What concerns experts most is the rate of deforestation."*\n\n**Inversion for emphasis:**\n*"Not only does technology create new jobs, but it also renders others obsolete."*\n*"Rarely has a policy generated such widespread debate."*\n\n**Conditional complexity:**\n*"Were governments to prioritise education, long-term productivity gains would inevitably follow."*\n(= "If governments were to prioritise...")\n\n**Participle clauses:**\n*"Having analysed the data, researchers concluded that..."*\n*"Driven by economic necessity, many families have..."*`},
+              {type:'quiz', heading:'Band 9 Check ✅',
+               q:"Which sentence uses Band 9-level language?",
+               opts:["Technology is changing how we live.","Not only has technology transformed communication, but it has also fundamentally reshaped economic structures worldwide.","Technology has changed communication and economics.","Many people use technology which is changing their lives."],
+               ans:1, exp:"Option B uses: inversion ('Not only has'), lexical precision ('transformed', 'fundamentally reshaped'), parallel structure, and sophisticated scope ('economic structures worldwide'). These are hallmarks of Band 9 writing."}
+            ]
+          }
+        ]
+      },
+      {
+        id:'C2U2', title:'Final Exam Preparation', icon:'🎯',
+        desc:'Mock strategies, time pressure drills & mind management',
+        lessons:[
+          { id:'C2U2L1', title:'Final Week Strategy', xp:70, type:'strategy',
+            steps:[
+              {type:'intro', heading:'Final Week: What to Do (and NOT Do) 🎯',
+               body:`The week before your IELTS exam, **consolidation** beats cramming.\n\n**DO:**\n✅ Review your weakest area (do a timed mini-test)\n✅ Re-read 5–6 strong Task 2 essays and identify their techniques\n✅ Practice speaking aloud for 20 minutes each day\n✅ Sleep 8 hours — memory consolidation happens during sleep\n✅ Prepare your ID, pencils, and route to the test centre\n\n**DON'T:**\n❌ Try to learn 100 new vocabulary words (won't stick)\n❌ Do full 4-hour practice tests every day (fatigue accumulates)\n❌ Attempt to fix deep grammar issues (focus on what works)\n❌ Change your essay structure (stick to what you know)`},
+              {type:'info', heading:'Exam Day Mindset',
+               body:`**Writing mindset:**\n• Task 1: Trust your structure. Introduction → Overview → Details.\n• Task 2: Plan for 5 minutes. Know your position before you write.\n• If your mind goes blank: Write ANYTHING — you can edit later. Getting words down beats staring at the page.\n\n**Reading mindset:**\n• Wrong answers DON'T subtract marks — always answer everything.\n• If unsure between FALSE and NOT GIVEN, choose NOT GIVEN.\n• If stuck on a question for 2 minutes, skip and return.\n\n**Speaking mindset:**\n• The examiner is NOT judging you as a person — they're scoring specific criteria.\n• A small grammar mistake won't ruin your score. FLUENCY matters more.\n• If you don't understand a question, say: "Could you rephrase that, please?"  (This is totally fine to ask.)`},
+              {type:'quiz', heading:'Final Strategy Check ✅',
+               q:"During the Reading exam, you've spent 3 minutes on one question and still aren't sure. What should you do?",
+               opts:["Keep trying until you get the answer, even if it takes 10 minutes","Skip it for now, answer the remaining questions, and return if time permits","Leave it blank — it's better to have no answer than a wrong one","Ask the examiner for help"],
+               ans:1, exp:"Wrong answers don't subtract marks in IELTS Reading. Always make a guess rather than leaving blank. If you're stuck, skip and come back — you may find the answer becomes clearer after answering surrounding questions. NEVER leave blanks on the answer sheet."}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════
+// COURSE STATE
+// ══════════════════════════════════
+let courseCurrentLevel = null;
+let courseCurrentUnit = null;
+let courseCurrentLesson = null;
+let lessonStepIdx = 0;
+
+function initCourse() {
+  courseShowHome();
+}
+
+function courseShowHome() {
+  document.getElementById('course-home').style.display = '';
+  document.getElementById('course-units').style.display = 'none';
+  document.getElementById('course-lesson').style.display = 'none';
+  document.getElementById('course-exercise').style.display = 'none';
+  renderCourseHome();
+}
+
+function courseShowUnits(levelId) {
+  const level = COURSE_DATA.find(l => l.id === levelId);
+  if (!level) return;
+  courseCurrentLevel = level;
+
+  document.getElementById('course-home').style.display = 'none';
+  document.getElementById('course-units').style.display = '';
+  document.getElementById('course-lesson').style.display = 'none';
+  document.getElementById('course-exercise').style.display = 'none';
+
+  document.getElementById('course-unit-title').textContent = level.icon + ' ' + level.title;
+  document.getElementById('course-unit-sub').textContent = level.subtitle + ' · Target: ' + level.targetBand;
+
+  renderUnitList(level);
+}
+
+function courseBackToUnits() {
+  if (courseCurrentLevel) courseShowUnits(courseCurrentLevel.id);
+  else courseShowHome();
+}
+
+function courseBackToLesson() {
+  document.getElementById('course-exercise').style.display = 'none';
+  document.getElementById('course-lesson').style.display = '';
+}
+
+function renderCourseHome() {
+  const grid = document.getElementById('course-level-grid');
+  if (!grid) return;
+
+  const completedLessons = P.completedLessons || [];
+  const xp = P.courseXP || 0;
+  let totalLessons = 0, doneLessons = 0;
+  COURSE_DATA.forEach(lv => lv.units.forEach(u => u.lessons.forEach(l => {
+    totalLessons++;
+    if (completedLessons.includes(l.id)) doneLessons++;
+  })));
+
+  const pct = totalLessons > 0 ? Math.round((doneLessons / totalLessons) * 100) : 0;
+
+  // Render level cards
+  grid.innerHTML = COURSE_DATA.map(lv => {
+    let lvTotal = 0, lvDone = 0;
+    lv.units.forEach(u => u.lessons.forEach(l => {
+      lvTotal++;
+      if (completedLessons.includes(l.id)) lvDone++;
+    }));
+    const lvPct = lvTotal > 0 ? Math.round((lvDone / lvTotal) * 100) : 0;
+    const isUnlocked = lv.level === 1 || completedLessons.length >= (lv.level - 1) * 2;
+
+    return `<div class="card" style="cursor:${isUnlocked?'pointer':'default'};opacity:${isUnlocked?1:0.5};border:1.5px solid ${lv.color}30;background:${lv.colorDim};padding:14px;"
+      onclick="${isUnlocked?`courseShowUnits('${lv.id}')`:'showToast(\"Complete previous levels first\")'}">>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:24px;">${lv.icon}</span>
+        <div style="flex:1;min-width:0;">
+          <div class="fw-700 text-sm" style="color:${lv.color};">${lv.title}</div>
+          <div class="text-xs text-muted">${lv.targetBand}</div>
+        </div>
+        ${!isUnlocked ? '<span style="font-size:16px;">🔒</span>' : lvDone===lvTotal && lvTotal>0 ? '<span style="font-size:16px;">✅</span>' : ''}
+      </div>
+      <div class="text-xs text-muted mb-6">${lv.units.length} units · ${lvTotal} lessons</div>
+      <div class="bar-wrap" style="height:4px;">
+        <div class="bar-fill" style="height:4px;background:${lv.color};width:${lvPct}%;transition:width 0.5s;"></div>
+      </div>
+      <div style="font-size:10px;color:${lv.color};margin-top:4px;font-weight:700;">${lvDone}/${lvTotal} complete</div>
+    </div>`;
+  }).join('');
+
+  // Progress overview card
+  const progCard = document.getElementById('course-progress-card');
+  if (doneLessons > 0 || xp > 0) {
+    progCard.style.display = '';
+    document.getElementById('course-pct-label').textContent = pct + '%';
+    document.getElementById('course-overall-bar').style.width = pct + '%';
+    document.getElementById('crs-lessons-done').textContent = doneLessons;
+    document.getElementById('crs-xp').textContent = xp;
+    document.getElementById('crs-streak').textContent = P.streak;
+  } else {
+    progCard.style.display = 'none';
+  }
+}
+
+function renderUnitList(level) {
+  const completedLessons = P.completedLessons || [];
+  const list = document.getElementById('course-unit-list');
+
+  list.innerHTML = level.units.map((unit, ui) => {
+    let uTotal = unit.lessons.length, uDone = unit.lessons.filter(l => completedLessons.includes(l.id)).length;
+    const typeIcons = {theory:'📋',vocab:'🔤',skill:'🎯',writing:'✍️',speaking:'🎤',grammar:'📐',strategy:'💡'};
+
+    return `<div class="card mb-10" style="border:1px solid ${level.color}30;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:22px;">${unit.icon}</span>
+        <div style="flex:1;">
+          <div class="fw-700 text-sm">${unit.title}</div>
+          <div class="text-xs text-muted">${unit.desc}</div>
+        </div>
+        <div class="text-xs" style="color:${level.color};font-weight:700;">${uDone}/${uTotal}</div>
+      </div>
+      ${unit.lessons.map((lesson, li) => {
+        const done = completedLessons.includes(lesson.id);
+        const icon = typeIcons[lesson.type] || '📖';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);cursor:pointer;"
+          onclick="startLesson('${lesson.id}')">
+          <div style="width:32px;height:32px;border-radius:50%;background:${done?level.color:'var(--bg3)'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">
+            ${done ? '✓' : icon}
+          </div>
+          <div style="flex:1;">
+            <div class="text-sm fw-700" style="color:${done?'var(--text2)':'var(--text)'};">${lesson.title}</div>
+            <div class="text-xs text-muted">${lesson.type} · +${lesson.xp} XP</div>
+          </div>
+          <span style="color:var(--text3);font-size:12px;">${done?'✅':'›'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function startLesson(lessonId) {
+  // find lesson
+  let found = null;
+  COURSE_DATA.forEach(lv => lv.units.forEach(u => u.lessons.forEach(l => {
+    if (l.id === lessonId) found = l;
+  })));
+  if (!found) return;
+
+  courseCurrentLesson = found;
+  lessonStepIdx = 0;
+
+  document.getElementById('course-home').style.display = 'none';
+  document.getElementById('course-units').style.display = 'none';
+  document.getElementById('course-lesson').style.display = '';
+  document.getElementById('course-exercise').style.display = 'none';
+
+  document.getElementById('lesson-title-bar').textContent = found.title;
+  document.getElementById('lesson-level-bar').textContent = courseCurrentLevel?.title + ' · ' + found.type;
+  document.getElementById('lesson-xp-badge').textContent = '+' + found.xp + ' XP';
+
+  renderLessonStep();
+}
+
+function renderLessonStep() {
+  const lesson = courseCurrentLesson;
+  const step = lesson.steps[lessonStepIdx];
+  const pct = ((lessonStepIdx + 1) / lesson.steps.length) * 100;
+
+  document.getElementById('lesson-prog-bar').style.width = pct + '%';
+  document.getElementById('lesson-prev-btn').style.display = lessonStepIdx > 0 ? '' : 'none';
+
+  const isLast = lessonStepIdx === lesson.steps.length - 1;
+  const nextBtn = document.getElementById('lesson-next-btn');
+
+  const content = document.getElementById('lesson-step-content');
+
+  if (step.type === 'intro' || step.type === 'info') {
+    nextBtn.textContent = isLast ? '✅ Complete Lesson' : 'Next →';
+    nextBtn.onclick = isLast ? completeLessonStep : lessonNext;
+    content.innerHTML = renderTheoryStep(step);
+  } else if (step.type === 'quiz') {
+    nextBtn.style.display = 'none';
+    content.innerHTML = renderQuizStep(step, isLast);
+  } else if (step.type === 'vocab_set') {
+    nextBtn.textContent = isLast ? '✅ Complete Lesson' : 'Next →';
+    nextBtn.onclick = isLast ? completeLessonStep : lessonNext;
+    content.innerHTML = renderVocabSetStep(step);
+  }
+}
+
+function renderTheoryStep(step) {
+  const body = step.body
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p style="margin:0 0 10px;color:var(--text2);font-size:13.5px;line-height:1.85;">')
+    .replace(/\n/g, '<br>');
+
+  return `<div class="card" style="border:1px solid var(--border2);">
+    <div class="fw-700 mb-10" style="font-family:'Lora',serif;font-size:16px;">${step.heading}</div>
+    <p style="margin:0 0 10px;color:var(--text2);font-size:13.5px;line-height:1.85;">${body}</p>
+  </div>`;
+}
+
+function renderVocabSetStep(step) {
+  return `<div class="card" style="border:1px solid var(--border2);">
+    <div class="fw-700 mb-12" style="font-family:'Lora',serif;font-size:16px;">${step.heading}</div>
+    ${step.words.map(w => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+          <span class="fw-700" style="color:var(--blue2);font-size:15px;">${w.word}</span>
+          <span class="text-xs text-muted">${w.forms}</span>
+        </div>
+        <div class="text-sm" style="color:var(--text2);margin-bottom:4px;">${w.def}</div>
+        <div class="text-xs" style="color:var(--text3);font-style:italic;border-left:2px solid var(--blue-dim);padding-left:8px;">"${w.example}"</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+let lessonQuizAnswered = false;
+function renderQuizStep(step, isLast) {
+  lessonQuizAnswered = false;
+  const qText = step.q.replace(/\n/g, '<br>');
+  return `<div class="card" style="border:1px solid var(--border2);">
+    <div class="fw-700 mb-10" style="font-family:'Lora',serif;font-size:15px;">${step.heading}</div>
+    <div class="text-sm mb-12" style="color:var(--text);line-height:1.7;">${qText}</div>
+    <div id="lesson-quiz-opts">
+      ${step.opts.map((opt, i) => `
+        <button class="quiz-opt" id="lqopt-${i}" onclick="answerLessonQuiz(${i},${step.ans},'${escHtml(step.exp).replace(/'/g,"\\'")}',${isLast})" style="text-align:left;width:100%;margin-bottom:8px;">
+          <span class="opt-letter">${String.fromCharCode(65+i)}</span>
+          ${escHtml(opt)}
+        </button>`).join('')}
+    </div>
+    <div id="lesson-quiz-exp" style="display:none;" class="card" style="background:var(--bg3);margin-top:10px;">
+      <div class="text-sm text-blue fw-700 mb-4">💡 Explanation</div>
+      <div class="text-xs" style="color:var(--text2);line-height:1.7;" id="lesson-quiz-exp-text"></div>
+    </div>
+  </div>`;
+}
+
+function answerLessonQuiz(selected, correct, explanation, isLast) {
+  if (lessonQuizAnswered) return;
+  lessonQuizAnswered = true;
+
+  const opts = document.querySelectorAll('[id^="lqopt-"]');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) {
+      btn.style.background = 'rgba(5,150,105,0.2)';
+      btn.style.borderColor = 'var(--green)';
+      btn.style.color = '#34d399';
+    } else if (i === selected && selected !== correct) {
+      btn.style.background = 'rgba(220,38,38,0.15)';
+      btn.style.borderColor = 'var(--red)';
+      btn.style.color = '#f87171';
+    }
+  });
+
+  const expDiv = document.getElementById('lesson-quiz-exp');
+  const expText = document.getElementById('lesson-quiz-exp-text');
+  if (expDiv && expText) {
+    expDiv.style.display = '';
+    expText.textContent = explanation;
+  }
+
+  // Show next button
+  const nextBtn = document.getElementById('lesson-next-btn');
+  nextBtn.style.display = '';
+  nextBtn.textContent = isLast ? '✅ Complete Lesson' : 'Next →';
+  nextBtn.onclick = isLast ? completeLessonStep : lessonNext;
+}
+
+function lessonNext() {
+  if (!courseCurrentLesson) return;
+  if (lessonStepIdx < courseCurrentLesson.steps.length - 1) {
+    lessonStepIdx++;
+    renderLessonStep();
+    document.getElementById('course-lesson').scrollTop = 0;
+  }
+}
+
+function lessonPrev() {
+  if (lessonStepIdx > 0) {
+    lessonStepIdx--;
+    renderLessonStep();
+  }
+}
+
+function completeLessonStep() {
+  const lesson = courseCurrentLesson;
+  if (!lesson) return;
+
+  // Mark as complete
+  if (!P.completedLessons) P.completedLessons = [];
+  if (!P.completedLessons.includes(lesson.id)) {
+    P.completedLessons.push(lesson.id);
+    P.courseXP = (P.courseXP || 0) + lesson.xp;
+    save();
+    showToast(`🎉 +${lesson.xp} XP! Lesson complete!`);
+  } else {
+    showToast('✅ Lesson already completed!');
+  }
+
+  // Return to unit list
+  courseBackToUnits();
+}
+
 
 </script>
 </body>
