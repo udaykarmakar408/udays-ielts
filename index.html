@@ -282,6 +282,39 @@ button{-webkit-tap-highlight-color:transparent;}
 .camb-examiner b,.camb-examiner strong{color:var(--blue2);}
 .band-pill{display:inline-block;padding:3px 11px;border-radius:99px;font-weight:800;font-size:12px;color:#fff;}
 
+/* ═══════════════════════════════════════
+   UI/UX IMPROVEMENTS
+   ═══════════════════════════════════════ */
+.card{transition:border-color 0.18s;}
+.btn{border-radius:14px;}
+.btn-primary{box-shadow:0 2px 12px rgba(37,99,235,0.22);}
+.btn-primary:hover{box-shadow:0 4px 20px rgba(37,99,235,0.32);transform:translateY(-1px);}
+.btn-primary:active{transform:none;box-shadow:none;}
+.sec-title{font-size:19px;margin-bottom:6px;}
+.sec-sub{font-size:12.5px;margin-bottom:18px;line-height:1.6;}
+.bnav-btn{transition:background 0.15s;}
+.bnav-btn.active{background:rgba(37,99,235,0.12);}
+.bnav-btn.active .bicon{filter:drop-shadow(0 0 5px rgba(59,130,246,0.5));}
+.bnav-btn .blabel{font-size:9.5px;font-weight:700;}
+#course-level-grid{gap:12px;}
+.quiz-opt{padding:14px 16px;border-radius:14px;}
+.quiz-opt .opt-letter{width:28px;height:28px;}
+.stat-card{border-radius:16px;}
+.stat-val{font-size:26px;}
+.tab-pill{padding:8px 18px;font-size:12.5px;}
+#an-mock-list>div:last-child{border-bottom:none!important;}
+#toast{border:1px solid var(--border2);}
+.accordion{border-radius:14px;}
+#modal-box{border-color:var(--border2);}
+@media(min-width:768px){
+  .snav-btn{border-left:3px solid transparent;border-radius:0 10px 10px 0;padding-left:13px;}
+  .snav-btn.active{border-left:3px solid var(--blue2);background:var(--blue-dim);}
+}
+@media(max-width:767px){
+  .card{padding:16px;}
+  .sec-title{font-size:18px;}
+}
+
 </style>
 </head>
 <body>
@@ -631,10 +664,10 @@ What would you like to work on?</div>
     <!-- Course Home -->
     <div id="course-home">
       <div class="sec-title">🎓 IELTS Course</div>
-      <div class="sec-sub">Complete beginner-to-advanced curriculum · 6 levels · AI-powered lessons</div>
+      <div class="sec-sub">6 levels · 32 lessons · Band 0→9 curriculum · Tap a level to begin</div>
 
       <!-- Level selector -->
-      <div id="course-level-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;"></div>
+      <div id="course-level-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;"></div>
 
       <!-- Progress overview -->
       <div class="card mb-12" id="course-progress-card" style="display:none;">
@@ -1015,7 +1048,10 @@ What would you like to work on?</div>
 
     <!-- Mock test history -->
     <div class="card mb-12" id="an-mock-card" style="display:none;">
-      <div class="fw-700 mb-12">📝 Mock Test History</div>
+      <div class="flex-between mb-12">
+        <div class="fw-700">📝 Mock Test History</div>
+        <span class="tag tag-blue" id="an-mock-count" style="font-size:11px;"></span>
+      </div>
       <div id="an-mock-list"></div>
     </div>
   </div>
@@ -3686,14 +3722,32 @@ function renderAnalytics(){
   // Mock history
   if(P.mockHistory.length>0){
     document.getElementById('an-mock-card').style.display='block';
-    document.getElementById('an-mock-list').innerHTML=P.mockHistory.slice().reverse().map(t=>`
-      <div class="flex-between" style="padding:9px 0;border-bottom:1px solid var(--border);">
-        <div>
-          <div class="text-sm fw-700">${t.test}</div>
-          <div class="text-xs text-muted">${t.date}</div>
-        </div>
-        ${t.band?'<span class="band-badge" style="background:'+bandColor(t.band)+'">'+t.band+'</span>':''}
-      </div>`).join('');
+    const _mc=document.getElementById('an-mock-count'); if(_mc) _mc.textContent=P.mockHistory.length+' test'+(P.mockHistory.length!==1?'s':'');
+    const _skillColors={listening:'#2563eb',reading:'#059669',writing:'#7c3aed',speaking:'#db2777'};
+    const _skillIcons={listening:'\u{1F3A7}',reading:'\u{1F4D6}',writing:'\u270D\uFE0F',speaking:'\u{1F3A4}'};
+    document.getElementById('an-mock-list').innerHTML=P.mockHistory.slice().reverse().map((t)=>{
+      const sc=_skillColors[t.skill]||'#64748b';
+      const si=_skillIcons[t.skill]||'\u{1F4DD}';
+      const bv=t.band?parseFloat(t.band):null;
+      const bl=bv?'Band '+bv:'No Score';
+      const bb=bv?bandColor(bv):'#334155';
+      const bd=bv?(bv>=8?'Excellent':bv>=7?'Good':bv>=6?'Competent':bv>=5?'Modest':'Developing'):'';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">'
+        +'<div style="width:40px;height:40px;border-radius:12px;background:'+sc+'22;border:1px solid '+sc+'44;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+si+'</div>'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div class="text-sm fw-700" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+t.test+'</div>'
+          +'<div style="display:flex;align-items:center;gap:5px;margin-top:3px;">'
+            +'<span class="text-xs" style="color:'+sc+';font-weight:700;text-transform:capitalize;">'+(t.skill||'mock')+'</span>'
+            +'<span class="text-xs text-muted">&middot;</span>'
+            +'<span class="text-xs text-muted">'+t.date+'</span>'
+          +'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;">'
+          +'<div class="band-badge" style="background:'+bb+';font-size:13px;padding:4px 12px;">'+bl+'</div>'
+          +(bd?'<div class="text-xs" style="color:'+bb+';margin-top:3px;font-weight:700;">'+bd+'</div>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
   }
 
   // Band trend sparkline
@@ -7424,22 +7478,29 @@ function renderCourseHome() {
     const lvPct = lvTotal > 0 ? Math.round((lvDone / lvTotal) * 100) : 0;
     const isUnlocked = lv.level === 1 || completedLessons.length >= (lv.level - 1) * 2;
     const onclickAttr = isUnlocked
-      ? 'courseShowUnits(' + JSON.stringify(lv.id) + ')'
+      ? "courseShowUnits('" + lv.id + "')"
       : 'showToast(\'Complete previous levels first\')';
     const statusIcon = !isUnlocked ? '🔒' : (lvDone===lvTotal && lvTotal>0 ? '✅' : '');
 
-    return '<div class="card" style="cursor:' + (isUnlocked?'pointer':'default') + ';opacity:' + (isUnlocked?1:0.5) + ';border:1.5px solid ' + lv.color + '30;background:' + lv.colorDim + ';padding:14px;" onclick="' + onclickAttr + '">'
-      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-      + '<span style="font-size:24px;">' + lv.icon + '</span>'
+    const startLabel = lvDone > 0 ? (lvDone===lvTotal?'Completed':'Continue') : 'Start';
+    return '<div onclick="' + onclickAttr + '" style="cursor:' + (isUnlocked?'pointer':'not-allowed') + ';opacity:' + (isUnlocked?1:0.55) + ';background:' + lv.colorDim + ';border:1.5px solid ' + lv.color + '40;border-radius:16px;padding:16px;transition:transform 0.15s,box-shadow 0.15s;" onmouseenter="if(' + isUnlocked + ')this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 24px rgba(0,0,0,0.25)\'" onmouseleave="this.style.transform=\'\';\'this.style.boxShadow=\'\'\'">'
+      + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">'
+      + '<div style="width:42px;height:42px;border-radius:12px;background:' + lv.color + '22;border:1px solid ' + lv.color + '40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + lv.icon + '</div>'
       + '<div style="flex:1;min-width:0;">'
-      + '<div class="fw-700 text-sm" style="color:' + lv.color + ';">' + lv.title + '</div>'
-      + '<div class="text-xs text-muted">' + lv.targetBand + '</div>'
+      + '<div class="fw-700" style="font-size:14px;color:' + lv.color + ';margin-bottom:1px;">' + lv.title + '</div>'
+      + '<div class="text-xs text-muted" style="line-height:1.4;">' + lv.subtitle + '</div>'
       + '</div>'
-      + (statusIcon ? '<span style="font-size:16px;">' + statusIcon + '</span>' : '')
+      + (statusIcon ? '<span style="font-size:14px;">' + statusIcon + '</span>' : '')
       + '</div>'
-      + '<div class="text-xs text-muted mb-6">' + lv.units.length + ' units · ' + lvTotal + ' lessons</div>'
-      + '<div class="bar-wrap" style="height:4px;"><div class="bar-fill" style="height:4px;background:' + lv.color + ';width:' + lvPct + '%;transition:width 0.5s;"></div></div>'
-      + '<div style="font-size:10px;color:' + lv.color + ';margin-top:4px;font-weight:700;">' + lvDone + '/' + lvTotal + ' complete</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+      + '<span class="text-xs" style="color:' + lv.color + ';font-weight:700;background:' + lv.color + '18;padding:2px 8px;border-radius:99px;">Band ' + lv.targetBand + '</span>'
+      + '<span class="text-xs text-muted">' + lv.units.length + ' units · ' + lvTotal + ' lessons</span>'
+      + '</div>'
+      + '<div class="bar-wrap" style="height:5px;margin-bottom:5px;"><div style="height:5px;background:' + lv.color + ';width:' + lvPct + '%;border-radius:99px;transition:width 0.6s;"></div></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<span style="font-size:10.5px;color:' + lv.color + ';font-weight:700;">' + lvPct + '% done</span>'
+      + (isUnlocked ? '<span style="font-size:10.5px;color:' + lv.color + ';font-weight:700;background:' + lv.color + '22;padding:2px 8px;border-radius:99px;">' + startLabel + ' →</span>' : '<span style="font-size:10.5px;color:#64748b;">🔒 Locked</span>')
+      + '</div>'
       + '</div>';
   }).join('');
 
