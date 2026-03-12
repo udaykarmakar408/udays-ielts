@@ -794,7 +794,11 @@ What would you like to work on?</div>
         <div class="fw-700 mb-4">Quiz done for today!</div>
         <div class="text-muted text-sm">Come back tomorrow for more. Your streak: 🔥 <span id="qd-streak">0</span> days</div>
       </div>
-      <button class="btn btn-primary" style="padding:14px 36px;font-size:16px;" id="start-quiz-btn" onclick="startQuiz()">Start Today's Quiz</button>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="generateAIQuiz()" id="gen-quiz-btn">🤖 AI: New Questions</button>
+        <button class="btn btn-ghost btn-sm" onclick="shuffleQuizBank()">🔀 Reshuffle</button>
+      </div>
+      <button class="btn btn-primary" style="padding:14px 36px;font-size:16px;" id="start-quiz-btn" onclick="startQuiz()">Start Quiz</button>
     </div>
 
     <div id="quiz-active" style="display:none;">
@@ -972,41 +976,52 @@ What would you like to work on?</div>
 
   <!-- ══════════ CAMBRIDGE SAMPLES ══════════ -->
   <div class="page" id="page-samples">
-    <div class="sec-title">🎓 Cambridge IELTS Samples</div>
-    <div class="sec-sub">Exam-style questions &amp; band-scored model answers — all 4 skills</div>
-    <div class="sample-grid" id="samp-tabs">
-      <div class="samp-nav-btn active" onclick="sampTab('writing',this)"><span class="sni">✍️</span><span class="snl">Writing</span></div>
-      <div class="samp-nav-btn" onclick="sampTab('reading',this)"><span class="sni">📖</span><span class="snl">Reading</span></div>
-      <div class="samp-nav-btn" onclick="sampTab('speaking',this)"><span class="sni">🎤</span><span class="snl">Speaking</span></div>
-      <div class="samp-nav-btn" onclick="sampTab('listening',this)"><span class="sni">🎧</span><span class="snl">Listening</span></div>
+    <div class="sec-title">🎓 Cambridge IELTS 1–19</div>
+    <div class="sec-sub">AI-generated Cambridge-style practice questions — select any book, test &amp; skill</div>
+
+    <!-- Book selector -->
+    <div class="card mb-12" style="padding:14px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div class="fw-700" style="font-size:13px;">📘 Select Cambridge IELTS Book</div>
+        <button class="btn btn-ghost btn-sm" onclick="cambShuffle()" title="Random book & test">🔀 Random</button>
+      </div>
+      <!-- Book numbers grid -->
+      <div id="camb-book-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      </div>
+      <!-- Test selector -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span class="text-xs text-muted fw-700">TEST:</span>
+        <div id="camb-test-btns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
     </div>
-    <div id="samp-sub-writing" class="tab-scroll mb-12">
-      <button class="tab-pill active" onclick="sampSub('w','task1chart',this)">Task 1 — Graph/Chart</button>
-      <button class="tab-pill" onclick="sampSub('w','task1map',this)">Task 1 — Map</button>
-      <button class="tab-pill" onclick="sampSub('w','task1process',this)">Task 1 — Process</button>
-      <button class="tab-pill" onclick="sampSub('w','task2opinion',this)">Task 2 — Opinion</button>
-      <button class="tab-pill" onclick="sampSub('w','task2discuss',this)">Task 2 — Discussion</button>
-      <button class="tab-pill" onclick="sampSub('w','task2problem',this)">Task 2 — Problem/Solution</button>
+
+    <!-- Skill tabs -->
+    <div class="tab-scroll mb-12" id="camb-skill-tabs">
+      <button class="tab-pill active" onclick="cambSkill('writing',this)">✍️ Writing</button>
+      <button class="tab-pill" onclick="cambSkill('reading',this)">📖 Reading</button>
+      <button class="tab-pill" onclick="cambSkill('speaking',this)">🎤 Speaking</button>
+      <button class="tab-pill" onclick="cambSkill('listening',this)">🎧 Listening</button>
     </div>
-    <div id="samp-sub-reading" class="tab-scroll mb-12" style="display:none;">
-      <button class="tab-pill active" onclick="sampSub('r','tfng',this)">True/False/NG</button>
-      <button class="tab-pill" onclick="sampSub('r','headings',this)">Match Headings</button>
-      <button class="tab-pill" onclick="sampSub('r','mcq',this)">Multiple Choice</button>
-      <button class="tab-pill" onclick="sampSub('r','gapfill',this)">Gap Fill</button>
-      <button class="tab-pill" onclick="sampSub('r','matching',this)">Matching Info</button>
+
+    <!-- Question type sub-tabs -->
+    <div id="camb-subtype-bar" class="tab-scroll mb-12"></div>
+
+    <!-- Generate button -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="flex:1;" onclick="cambGenerate()">
+        🤖 Generate Questions
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="cambReshuffle()" title="Reshuffle question types">🔀 Reshuffle</button>
     </div>
-    <div id="samp-sub-speaking" class="tab-scroll mb-12" style="display:none;">
-      <button class="tab-pill active" onclick="sampSub('s','part1',this)">Part 1 — Intro</button>
-      <button class="tab-pill" onclick="sampSub('s','part2',this)">Part 2 — Cue Card</button>
-      <button class="tab-pill" onclick="sampSub('s','part3',this)">Part 3 — Discussion</button>
-    </div>
-    <div id="samp-sub-listening" class="tab-scroll mb-12" style="display:none;">
-      <button class="tab-pill active" onclick="sampSub('l','formfill',this)">Form Completion</button>
-      <button class="tab-pill" onclick="sampSub('l','mcq',this)">Multiple Choice</button>
-      <button class="tab-pill" onclick="sampSub('l','mapdiagram',this)">Map/Diagram</button>
-      <button class="tab-pill" onclick="sampSub('l','notecomplete',this)">Note Completion</button>
-    </div>
+
+    <!-- Content area -->
     <div id="samp-content"></div>
+
+    <!-- Keep old CAMB data for legacy -->
+    <div id="samp-sub-writing" style="display:none;"></div>
+    <div id="samp-sub-reading" style="display:none;"></div>
+    <div id="samp-sub-speaking" style="display:none;"></div>
+    <div id="samp-sub-listening" style="display:none;"></div>
   </div>
 
   </div><!-- end #content -->
@@ -1905,7 +1920,8 @@ function renderTestsHome(){
         </div>
         ${t.band?`<span class="band-badge" style="background:${bandColor(t.band)}">${t.band}</span>`:''}
       </div>`).join('');
-  }
+  
+  renderTestsHomeWithGenerate();
 }
 
 function startTest(id){
@@ -5219,9 +5235,7 @@ function sampAsk(ref) {
   setTimeout(() => sendMessage('Can you explain the key strategies, common traps, and tips for this IELTS task type: "' + ref + '"?'), 300);
 }
 
-function initSamples() {
-  sampTab('writing');
-}
+// initSamples overridden below
 
 
 // ════════════════════════════════════════
@@ -5626,6 +5640,529 @@ submitTest = async function() {
   // call original
   await _origSubmitTest.call(this, ...arguments);
 };
+
+
+
+// ════════════════════════════════════════════════════════════
+// CAMBRIDGE IELTS 1–19 NAVIGATOR + AI QUESTION GENERATOR
+// ════════════════════════════════════════════════════════════
+
+const CAMB_BOOKS = Array.from({length:19},(_,i)=>i+1);
+const CAMB_TESTS = [1,2,3,4]; // most books have 4 tests
+const CAMB_SKILLS = {
+  writing: {
+    label:'Writing', icon:'✍️',
+    subtypes:[
+      {id:'task1_bar',   label:'Task 1 — Bar Chart'},
+      {id:'task1_line',  label:'Task 1 — Line Graph'},
+      {id:'task1_pie',   label:'Task 1 — Pie Chart'},
+      {id:'task1_table', label:'Task 1 — Table'},
+      {id:'task1_map',   label:'Task 1 — Map'},
+      {id:'task1_process',label:'Task 1 — Process Diagram'},
+      {id:'task2_opinion',label:'Task 2 — Opinion Essay'},
+      {id:'task2_discuss',label:'Task 2 — Discussion Essay'},
+      {id:'task2_problem',label:'Task 2 — Problem/Solution'},
+      {id:'task2_adv',   label:'Task 2 — Advantages/Disadvantages'},
+    ]
+  },
+  reading: {
+    label:'Reading', icon:'📖',
+    subtypes:[
+      {id:'tfng',        label:'True / False / Not Given'},
+      {id:'ynng',        label:'Yes / No / Not Given'},
+      {id:'headings',    label:'Matching Headings'},
+      {id:'mcq',         label:'Multiple Choice'},
+      {id:'gapfill',     label:'Gap Fill / Summary'},
+      {id:'matching',    label:'Matching Information'},
+      {id:'short_ans',   label:'Short Answer Questions'},
+      {id:'sentence_end',label:'Sentence Endings'},
+    ]
+  },
+  speaking: {
+    label:'Speaking', icon:'🎤',
+    subtypes:[
+      {id:'part1',  label:'Part 1 — Personal Questions'},
+      {id:'part2',  label:'Part 2 — Cue Card'},
+      {id:'part3',  label:'Part 3 — Discussion'},
+    ]
+  },
+  listening: {
+    label:'Listening', icon:'🎧',
+    subtypes:[
+      {id:'form',     label:'Form / Note Completion'},
+      {id:'mcq',      label:'Multiple Choice'},
+      {id:'map',      label:'Map / Diagram Labelling'},
+      {id:'matching', label:'Matching'},
+      {id:'table',    label:'Table Completion'},
+      {id:'flowchart',label:'Flowchart Completion'},
+    ]
+  }
+};
+
+let cambBook = 15, cambTest = 1, cambSkillKey = 'writing', cambSubtype = null;
+let cambGenerating = false;
+
+function initCambNav() {
+  // Build book grid
+  const grid = document.getElementById('camb-book-grid');
+  if (!grid) return;
+  grid.innerHTML = CAMB_BOOKS.map(n => `
+    <button class="camb-book-btn${n===cambBook?' active':''}" onclick="cambSelectBook(${n},this)">
+      ${n}
+    </button>`).join('');
+
+  // Build test buttons
+  cambUpdateTestBtns();
+
+  // Build subtype bar for default skill
+  cambUpdateSubtypes();
+}
+
+function cambSelectBook(n, btn) {
+  cambBook = n;
+  document.querySelectorAll('.camb-book-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+function cambUpdateTestBtns() {
+  const bar = document.getElementById('camb-test-btns');
+  if(!bar) return;
+  // Books 1-8 have 4 tests, 9-19 have 4 tests too, but book 1-3 had 3
+  const maxTests = cambBook <= 3 ? 3 : 4;
+  bar.innerHTML = Array.from({length:maxTests},(_,i)=>i+1).map(t=>
+    `<button class="tab-pill${t===cambTest?' active':''}" onclick="cambSelectTest(${t},this)">Test ${t}</button>`
+  ).join('');
+}
+
+function cambSelectTest(t, btn) {
+  cambTest = t;
+  document.querySelectorAll('#camb-test-btns .tab-pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+function cambSkill(skill, btn) {
+  cambSkillKey = skill;
+  document.querySelectorAll('#camb-skill-tabs .tab-pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  cambSubtype = null;
+  cambUpdateSubtypes();
+}
+
+function cambUpdateSubtypes() {
+  const bar = document.getElementById('camb-subtype-bar');
+  if(!bar) return;
+  const subtypes = CAMB_SKILLS[cambSkillKey]?.subtypes || [];
+  bar.innerHTML = subtypes.map((s,i)=>
+    `<button class="tab-pill${i===0?' active':''}" onclick="cambSelectSubtype('${s.id}',this)">${s.label}</button>`
+  ).join('');
+  cambSubtype = subtypes[0]?.id || null;
+}
+
+function cambSelectSubtype(id, btn) {
+  cambSubtype = id;
+  document.querySelectorAll('#camb-subtype-bar .tab-pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+function cambShuffle() {
+  // pick random book and test
+  const book = CAMB_BOOKS[Math.floor(Math.random()*CAMB_BOOKS.length)];
+  const test = Math.floor(Math.random()*4)+1;
+  const skills = Object.keys(CAMB_SKILLS);
+  const skill = skills[Math.floor(Math.random()*skills.length)];
+
+  cambBook = book;
+  cambTest = test;
+  cambSkillKey = skill;
+
+  // update UI
+  document.querySelectorAll('.camb-book-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.textContent.trim())===book);
+  });
+  cambUpdateTestBtns();
+  document.querySelectorAll('#camb-skill-tabs .tab-pill').forEach((b,i)=>{
+    b.classList.toggle('active', Object.keys(CAMB_SKILLS)[i]===skill);
+  });
+  cambUpdateSubtypes();
+  showToast(`📘 Cambridge ${book} · Test ${test} · ${CAMB_SKILLS[skill].label}`);
+  cambGenerate();
+}
+
+function cambReshuffle() {
+  // just pick a random subtype for current skill
+  const subtypes = CAMB_SKILLS[cambSkillKey]?.subtypes || [];
+  if(subtypes.length === 0) return;
+  const pick = subtypes[Math.floor(Math.random()*subtypes.length)];
+  cambSubtype = pick.id;
+  document.querySelectorAll('#camb-subtype-bar .tab-pill').forEach(b=>{
+    b.classList.toggle('active', b.textContent.trim()===pick.label);
+  });
+  showToast(`🔀 Switched to: ${pick.label}`);
+  cambGenerate();
+}
+
+async function cambGenerate() {
+  if(cambGenerating) return;
+  cambGenerating = true;
+
+  const sc = document.getElementById('samp-content');
+  if(!sc) { cambGenerating=false; return; }
+
+  const skill = CAMB_SKILLS[cambSkillKey];
+  const subtype = skill.subtypes.find(s=>s.id===cambSubtype) || skill.subtypes[0];
+  const subtypeLabel = subtype?.label || cambSkillKey;
+
+  sc.innerHTML = `
+    <div class="card" style="text-align:center;padding:32px 20px;">
+      <div style="font-size:36px;margin-bottom:12px;">🤖</div>
+      <div class="fw-700 mb-6">Generating Cambridge ${cambBook} · Test ${cambTest}</div>
+      <div class="text-muted text-sm">${skill.icon} ${subtypeLabel}</div>
+      <div style="margin-top:16px;height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;">
+        <div style="height:4px;background:var(--blue);border-radius:99px;animation:shimmer 1.5s infinite;width:60%;"></div>
+      </div>
+    </div>`;
+
+  const systemPrompt = buildCambSystemPrompt(cambSkillKey, subtype?.id, cambBook, cambTest);
+  const userPrompt = buildCambUserPrompt(cambSkillKey, subtype?.id, cambBook, cambTest);
+
+  try {
+    const reply = await callAI([{role:'user', content:userPrompt}], systemPrompt);
+    renderCambResult(reply, cambBook, cambTest, skill.icon, subtypeLabel);
+  } catch(e) {
+    sc.innerHTML = `<div class="card" style="color:var(--red);padding:20px;">⚠️ Generation failed: ${e.message}</div>`;
+  }
+  cambGenerating = false;
+}
+
+function buildCambSystemPrompt(skill, subtype, book, test) {
+  const base = `You are an expert IELTS examiner and Cambridge IELTS author. Generate a REALISTIC, 
+exam-quality Cambridge IELTS ${book} Test ${test} style ${skill} question. 
+
+IMPORTANT RULES:
+- Match the exact difficulty and style of Cambridge IELTS book ${book}
+- Do NOT copy actual Cambridge materials — create original content in the same style
+- Be specific, realistic, and exam-authentic
+- Include all necessary components (task, questions, model answer, examiner notes)
+- Format clearly with proper IELTS structure`;
+
+  const extras = {
+    writing: `Generate both the TASK and a Band 7.5+ MODEL ANSWER (200-280 words for Task 1, 280-320 for Task 2).
+Include: 1) The full task/prompt 2) Model answer 3) Examiner commentary on each criterion`,
+    reading: `Generate a SHORT PASSAGE (200-300 words) on an academic topic + 8 questions of the specified type.
+Include: 1) Passage 2) Questions 3) Answer key with explanations`,
+    speaking: `Generate realistic speaking questions with SAMPLE BAND 7 RESPONSES.
+Include: 1) The questions 2) Sample answers 3) Examiner tips`,
+    listening: `Generate a realistic listening SCRIPT (150-200 words) + 8 questions of the specified type.
+Include: 1) Listening script 2) Questions 3) Answer key`
+  };
+
+  return base + '\n\n' + (extras[skill] || '');
+}
+
+function buildCambUserPrompt(skill, subtype, book, test) {
+  const subtypeDescriptions = {
+    // Writing
+    task1_bar: 'Writing Task 1 with a bar chart comparing categories across groups',
+    task1_line: 'Writing Task 1 with a line graph showing trends over time',
+    task1_pie: 'Writing Task 1 with pie charts showing proportional data',
+    task1_table: 'Writing Task 1 with a table of numerical data',
+    task1_map: 'Writing Task 1 with a map showing changes to a place over time',
+    task1_process: 'Writing Task 1 with a process diagram showing stages of production',
+    task2_opinion: 'Writing Task 2 opinion/agree-disagree essay',
+    task2_discuss: 'Writing Task 2 discuss both views essay',
+    task2_problem: 'Writing Task 2 problem and solution essay',
+    task2_adv: 'Writing Task 2 advantages and disadvantages essay',
+    // Reading
+    tfng: 'Reading passage with True/False/Not Given statements (8 questions)',
+    ynng: 'Reading passage with Yes/No/Not Given statements (8 questions)',
+    headings: 'Reading passage with Matching Headings questions (7-8 headings)',
+    mcq: 'Reading passage with Multiple Choice questions (5 questions)',
+    gapfill: 'Reading passage with Gap Fill/Summary completion (8 gaps)',
+    matching: 'Reading passage with Matching Information questions',
+    short_ans: 'Reading passage with Short Answer Questions (no more than 3 words)',
+    sentence_end: 'Reading passage with Sentence Endings matching',
+    // Speaking
+    part1: 'Speaking Part 1 — 5 personal questions on 2 topics with model answers',
+    part2: 'Speaking Part 2 — cue card with 4 bullet points and model 2-minute answer',
+    part3: 'Speaking Part 3 — 6 abstract discussion questions with model answers',
+    // Listening
+    form: 'Listening Section 1 or 2 style form/note completion (8 gaps)',
+    mcq: 'Listening multiple choice questions (6 questions)',
+    map: 'Listening map or diagram labelling (6 labels)',
+    matching: 'Listening matching exercise (6-8 items)',
+    table: 'Listening table completion (8 cells)',
+    flowchart: 'Listening flowchart completion (6-8 gaps)',
+  };
+
+  const desc = subtypeDescriptions[subtype] || `${skill} practice question`;
+  return `Generate a Cambridge IELTS ${book} Test ${test} style: ${desc}
+
+Choose a FRESH, ORIGINAL topic that fits IELTS Academic level. Make it authentic and challenging.`;
+}
+
+function renderCambResult(reply, book, test, icon, subtypeLabel) {
+  const sc = document.getElementById('samp-content');
+  if(!sc) return;
+
+  // Format the AI reply with nice styling
+  const formatted = reply
+    .replace(/^#{1,3}\s(.+)$/gm, '<div class="fw-700" style="font-size:14px;color:var(--blue2);margin:14px 0 6px;">$1</div>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p style="margin:0 0 10px;">')
+    .replace(/\n/g, '<br>');
+
+  sc.innerHTML = `
+    <div class="card mb-12" style="border:1px solid var(--blue-dim);">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span class="camb-badge">📘 Cambridge IELTS ${book} · Test ${test}</span>
+          </div>
+          <div class="text-xs text-muted">${icon} ${subtypeLabel}</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="cambReshuffle()">🔀 New Type</button>
+          <button class="btn btn-primary btn-sm" onclick="cambGenerate()">↩ Regenerate</button>
+        </div>
+      </div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.9;">
+        <p style="margin:0 0 10px;">${formatted}</p>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="cambPracticeThis(this)">✏️ Practice This</button>
+        <button class="btn btn-ghost btn-sm" onclick="cambAskTutor()">🤖 Ask AI Tutor</button>
+        <button class="btn btn-ghost btn-sm" onclick="cambShuffle()">🎲 Random Book</button>
+      </div>
+    </div>`;
+}
+
+function cambPracticeThis(btn) {
+  const content = document.getElementById('samp-content')?.querySelector('div[style*="font-size:13.5px"]')?.innerText || '';
+  navigate('tutor');
+  setTimeout(()=>{
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'Help me practice this: ' + content.slice(0,300); }
+  }, 300);
+}
+
+function cambAskTutor() {
+  const content = document.getElementById('samp-content')?.querySelector('div[style*="font-size:13.5px"]')?.innerText || '';
+  navigate('tutor');
+  setTimeout(()=>{
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'Explain this question and give me tips: ' + content.slice(0,300); }
+  }, 300);
+}
+
+// Override initSamples to init Cambridge nav
+function initSamples() {
+  initCambNav();
+}
+
+// Add book button CSS dynamically
+(function addCambStyles(){
+  const s = document.createElement('style');
+  s.textContent = `
+    .camb-book-btn {
+      width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);
+      background:var(--bg2);color:var(--text3);font-weight:700;font-size:13px;
+      cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;
+    }
+    .camb-book-btn:hover { border-color:var(--blue);color:var(--blue2); }
+    .camb-book-btn.active { background:var(--blue-dim);border-color:var(--blue);color:var(--blue2); }
+    @keyframes shimmer {
+      0%{transform:translateX(-100%)} 100%{transform:translateX(200%)}
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+
+// ════════════════════════════════════════════════════════════
+// AI QUIZ GENERATOR + RESHUFFLE
+// ════════════════════════════════════════════════════════════
+
+async function generateAIQuiz() {
+  const btn = document.getElementById('gen-quiz-btn');
+  if(!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  const systemPrompt = `You are an IELTS expert. Generate exactly 10 ORIGINAL IELTS quiz questions in strict JSON format.
+Mix types: Vocabulary (3), Grammar (3), Reading Comprehension (2), IELTS Strategy/Knowledge (2).
+Each question must be challenging, exam-realistic, and different from common examples.
+
+Return ONLY a JSON array, no other text:
+[
+  {
+    "type": "Vocabulary",
+    "q": "Question text here",
+    "opts": ["Option A", "Option B", "Option C", "Option D"],
+    "ans": 2,
+    "exp": "Explanation of why the answer is correct"
+  }
+]
+
+Rules:
+- ans is the 0-indexed correct option number
+- Each question must have exactly 4 options
+- Make questions genuinely challenging (Band 6-7+ level)
+- No repeated topics from: ubiquitous, mitigate, corroborate (already used)`;
+
+  try {
+    const reply = await callAI([{role:'user',content:'Generate 10 fresh IELTS quiz questions now.'}], systemPrompt);
+    // parse JSON
+    const clean = reply.replace(/```json|```/g,'').trim();
+    const startIdx = clean.indexOf('[');
+    const endIdx = clean.lastIndexOf(']');
+    if(startIdx<0 || endIdx<0) throw new Error('No JSON array found');
+    const qs = JSON.parse(clean.slice(startIdx, endIdx+1));
+    if(!Array.isArray(qs) || qs.length===0) throw new Error('Empty questions');
+
+    // validate and merge into QUIZ_BANK
+    const valid = qs.filter(q=>q.q && Array.isArray(q.opts) && q.opts.length===4 && typeof q.ans==='number');
+    if(valid.length===0) throw new Error('No valid questions parsed');
+
+    // prepend to QUIZ_BANK (keep originals at end)
+    QUIZ_BANK.unshift(...valid);
+    // keep to max 60
+    if(QUIZ_BANK.length > 60) QUIZ_BANK.splice(60);
+
+    shuffleQuizBank();
+    showToast(`✅ ${valid.length} new AI questions added!`);
+  } catch(e) {
+    showToast('⚠️ Generation failed: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🤖 AI: New Questions';
+}
+
+function shuffleQuizBank() {
+  // Fisher-Yates shuffle
+  for(let i=QUIZ_BANK.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [QUIZ_BANK[i],QUIZ_BANK[j]]=[QUIZ_BANK[j],QUIZ_BANK[i]];
+  }
+  showToast('🔀 Questions reshuffled!');
+}
+
+// ════════════════════════════════════════════════════════════
+// MOCK TEST — AI QUESTION GENERATOR + RESHUFFLE
+// ════════════════════════════════════════════════════════════
+
+function renderTestsHomeWithGenerate() {
+  // Add generate buttons to each test card
+  setTimeout(()=>{
+    const home = document.getElementById('tests-home');
+    if(!home || home.dataset.genAdded) return;
+    home.dataset.genAdded = '1';
+
+    // Add a "Generate New Test" button at top
+    const genBar = document.createElement('div');
+    genBar.style.cssText = 'display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;';
+    genBar.innerHTML = `
+      <button class="btn btn-primary" style="flex:1;" onclick="generateAITest()">🤖 Generate New AI Test</button>
+      <button class="btn btn-ghost btn-sm" onclick="reshuffleTests()">🔀 Reshuffle Tests</button>`;
+    home.insertBefore(genBar, home.firstChild);
+  }, 100);
+}
+
+let aiGeneratedTests = {};
+
+async function generateAITest() {
+  const btn = document.querySelector('[onclick="generateAITest()"]');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Generating...'; }
+
+  const testTypes = [
+    {key:'wt1', skill:'writing', label:'Writing Task 1', mins:20,
+     desc:'Generate a fresh Writing Task 1 prompt (graph, chart, map or process diagram). Include: data description context, word count requirement (150 words min), and the exact IELTS task instruction wording.'},
+    {key:'wt2', skill:'writing', label:'Writing Task 2', mins:40,
+     desc:'Generate a fresh Writing Task 2 essay question on a contemporary topic. Must specify essay type (opinion/discussion/problem-solution/advantages-disadvantages). Include 250 word minimum instruction.'},
+    {key:'speaking', skill:'speaking', label:'Speaking', mins:15,
+     desc:'Generate 3 Part 1 questions (personal topic), 1 Part 2 cue card (4 bullet points), and 3 Part 3 discussion questions. All on a single coherent theme.'},
+  ];
+
+  const pick = testTypes[Math.floor(Math.random()*testTypes.length)];
+
+  try {
+    const reply = await callAI(
+      [{role:'user', content:`Generate a ${pick.label} IELTS test prompt. ${pick.desc} Return ONLY the test question/task, nothing else.`}],
+      `You are an expert IELTS examiner. Generate authentic, exam-quality IELTS ${pick.label} prompts. Be creative with topics. Match Cambridge IELTS style exactly.`
+    );
+
+    // Add as a new test option
+    aiGeneratedTests[pick.key] = {
+      ...TESTS[pick.key],
+      label: pick.label + ' (AI Generated)',
+      prompt: reply.trim(),
+      isAI: true
+    };
+
+    // Show it
+    renderAITestCard(aiGeneratedTests[pick.key], pick.key);
+    showToast(`✅ New ${pick.label} test generated!`);
+  } catch(e) {
+    showToast('⚠️ Failed to generate: ' + e.message);
+  }
+
+  if(btn){ btn.disabled=false; btn.textContent='🤖 Generate New AI Test'; }
+}
+
+function renderAITestCard(test, key) {
+  const home = document.getElementById('tests-home');
+  if(!home) return;
+
+  // remove old AI card if exists
+  const old = document.getElementById('ai-test-card');
+  if(old) old.remove();
+
+  const card = document.createElement('div');
+  card.id = 'ai-test-card';
+  card.className = 'card mb-12';
+  card.style.cssText = 'border:2px solid var(--blue);background:var(--bg2);';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:28px;">🤖</span>
+      <div>
+        <div class="fw-700">${test.label}</div>
+        <div class="text-xs text-muted">${test.mins} min · AI Generated · Strict band scoring</div>
+      </div>
+    </div>
+    <div class="text-xs text-muted mb-12" style="white-space:pre-wrap;max-height:80px;overflow:hidden;">${test.prompt.slice(0,200)}...</div>
+    <button class="btn btn-primary btn-block" onclick="startAITest('${key}')">Start This Test</button>`;
+
+  // Insert after gen bar
+  const genBar = home.querySelector('[onclick="generateAITest()"]')?.parentElement;
+  if(genBar) genBar.after(card);
+  else home.insertBefore(card, home.firstChild.nextSibling);
+}
+
+function startAITest(key) {
+  if(aiGeneratedTests[key]) {
+    TESTS[key] = aiGeneratedTests[key];
+  }
+  startTest(key);
+}
+
+function reshuffleTests() {
+  // randomly reorder the test cards in the UI
+  const home = document.getElementById('tests-home');
+  if(!home) return;
+  const cards = [...home.querySelectorAll('.test-card-item')];
+  cards.sort(()=>Math.random()-0.5);
+  cards.forEach(c=>home.appendChild(c));
+  showToast('🔀 Tests reshuffled!');
+}
+
+// Patch renderTestsHome to add generate buttons
+const _origRenderTestsHome = typeof renderTestsHome === 'function' ? renderTestsHome : null;
+if(_origRenderTestsHome) {
+  renderTestsHome = function() {
+    _origRenderTestsHome();
+    renderTestsHomeWithGenerate();
+  };
+}
 
 </script>
 </body>
