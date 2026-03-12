@@ -409,7 +409,7 @@ button{-webkit-tap-highlight-color:transparent;}
     </div>
 
   <!-- ══════════ SETUP PAGE ══════════ -->
-  <div class="page active" id="page-setup" style="flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px;">
+  <div class="page active" id="page-setup" style="flex-direction:column;align-items:center;min-height:100%;padding:24px;overflow-y:auto;">
     <div style="width:100%;max-width:420px;">
       <div style="text-align:center;margin-bottom:32px;">
         <div style="display:flex;justify-content:center;margin-bottom:14px;">
@@ -505,6 +505,12 @@ button{-webkit-tap-highlight-color:transparent;}
     <div class="card mb-12">
       <div class="fw-700 mb-12">📆 This Week</div>
       <div style="display:flex;gap:6px;" id="week-dots"></div>
+    </div>
+
+    <!-- Smart Daily Insight -->
+    <div class="card mb-12" style="background:linear-gradient(135deg,#0c1e3d,var(--bg1));border:1px solid var(--blue-dim);">
+      <div class="text-xs text-blue fw-700 mb-6">💡 Today's Focus</div>
+      <div id="dash-insight" class="text-sm" style="color:var(--text2);line-height:1.7;"></div>
     </div>
 
     <!-- Quick Actions -->
@@ -826,7 +832,13 @@ What would you like to work on?</div>
           <div class="text-xs text-blue fw-700 mb-8">📋 Task</div>
           <div id="test-prompt" style="font-size:13.5px;color:var(--text2);line-height:1.8;white-space:pre-wrap;"></div>
         </div>
-        <textarea id="test-answer-writing" placeholder="Type your response here..." style="width:100%;background:var(--bg1);border:1.5px solid var(--border2);border-radius:14px;padding:16px;color:var(--text);font-size:14.5px;resize:vertical;min-height:220px;line-height:1.8;font-family:Georgia,serif;margin-bottom:12px;"></textarea>
+        <div style="position:relative;">
+          <textarea id="test-answer-writing" placeholder="Type your response here..." style="width:100%;background:var(--bg1);border:1.5px solid var(--border2);border-radius:14px;padding:16px 16px 38px;color:var(--text);font-size:14.5px;resize:vertical;min-height:220px;line-height:1.8;font-family:Georgia,serif;" oninput="updateWordCount(this)"></textarea>
+          <div id="word-count-bar" style="position:absolute;bottom:0;left:0;right:0;padding:6px 16px;background:var(--bg2);border-top:1px solid var(--border);border-radius:0 0 14px 14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;">
+            <span style="font-size:11px;color:var(--text3);">Words: <strong id="word-count-num" style="color:var(--text2);">0</strong></span>
+            <span id="word-count-status" style="font-size:11px;font-weight:600;color:var(--text3);"></span>
+          </div>
+        </div>
       </div>
 
       <div style="display:flex;gap:10px;margin-top:4px;">
@@ -851,7 +863,7 @@ What would you like to work on?</div>
             <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
           </div>
         </div>
-        <div id="feedback-text" style="display:none;font-size:13.5px;color:var(--text2);line-height:1.85;white-space:pre-wrap;"></div>
+        <div id="feedback-text" style="display:none;font-size:13.5px;color:var(--text2);line-height:1.85;"></div>
       </div>
       <button class="btn btn-ghost btn-block" style="margin-top:12px;" onclick="backToTests()">← Back to Tests</button>
     </div>
@@ -868,6 +880,11 @@ What would you like to work on?</div>
       <button class="tab-pill" onclick="setResTab('listening',this)">🎧 Listening</button>
       <button class="tab-pill" onclick="setResTab('grammar',this)">📐 Grammar</button>
       <button class="tab-pill" onclick="setResTab('strategies',this)">🧠 Strategies</button>
+      <button class="tab-pill" onclick="setResTab('liz',this)">🌟 Liz's Hub</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" id="res-ai-bar">
+      <button class="btn btn-primary btn-sm" onclick="generateAIResource()" id="gen-res-btn">🤖 AI: Generate Lesson</button>
+      <button class="btn btn-ghost btn-sm" onclick="shuffleResources()">🔀 Reshuffle</button>
     </div>
     <div id="resources-list"></div>
   </div>
@@ -930,7 +947,8 @@ What would you like to work on?</div>
         <span class="text-sm text-muted">Day <span id="rm-day">0</span> of 90</span>
         <span class="text-sm text-blue fw-700" id="rm-pct">0%</span>
       </div>
-      <div class="bar-wrap mb-12" style="height:10px;"><div class="bar-fill" id="rm-bar" style="height:10px;background:var(--blue);"></div></div>
+      <div class="bar-wrap mb-8" style="height:10px;"><div class="bar-fill" id="rm-bar" style="height:10px;background:linear-gradient(90deg,var(--blue),var(--violet));"></div></div>
+      <div id="rm-msg" class="text-xs mb-10" style="color:var(--text2);line-height:1.6;font-style:italic;min-height:18px;"></div>
       <label class="text-xs text-muted" style="display:block;margin-bottom:6px;">Update your day manually:</label>
       <input type="range" min="1" max="90" value="1" id="rm-slider" oninput="updateRoadmapDay(this.value)">
     </div>
@@ -974,6 +992,25 @@ What would you like to work on?</div>
     <div class="card mb-12" id="an-quiz-chart-card" style="display:none;">
       <div class="fw-700 mb-12">✏️ Quiz History</div>
       <div style="display:flex;align-items:flex-end;gap:4px;height:80px;" id="an-quiz-chart"></div>
+    </div>
+
+    <!-- Band Trend Chart -->
+    <div class="card mb-12" id="an-band-trend-card" style="display:none;">
+      <div class="fw-700 mb-12">📈 Band Score Trend</div>
+      <svg id="an-band-trend-svg" viewBox="0 0 260 80" width="100%" height="80" style="overflow:visible;"></svg>
+      <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;color:var(--text3);"><span style="color:#3b82f6;">●</span> Reading</span>
+        <span style="font-size:11px;color:var(--text3);"><span style="color:#7c3aed;">●</span> Writing</span>
+        <span style="font-size:11px;color:var(--text3);"><span style="color:#db2777;">●</span> Speaking</span>
+        <span style="font-size:11px;color:var(--text3);"><span style="color:#059669;">●</span> Listening</span>
+        <span style="font-size:11px;color:var(--text3);"><span style="color:var(--amber);">- -</span> Target</span>
+      </div>
+    </div>
+
+    <!-- Progress prediction -->
+    <div class="card mb-12" id="an-pred-card" style="display:none;background:linear-gradient(135deg,#0c1e3d,var(--bg1));border:1px solid var(--blue-dim);">
+      <div class="text-xs text-blue fw-700 mb-6">🔮 Prediction</div>
+      <div id="an-pred-text" class="text-sm" style="color:var(--text2);line-height:1.7;"></div>
     </div>
 
     <!-- Mock test history -->
@@ -1066,8 +1103,16 @@ What would you like to work on?</div>
   <!-- ══════════ CAMBRIDGE SAMPLES ══════════ -->
   <div class="page" id="page-samples">
     <div class="sec-title">🎓 Cambridge IELTS 1–19</div>
-    <div class="sec-sub">AI-generated Cambridge-style practice questions — select any book, test &amp; skill</div>
+    <div class="sec-sub">Official study materials + AI-generated Cambridge-style practice questions</div>
 
+    <!-- Top-level mode tabs -->
+    <div class="tab-scroll mb-12" id="samp-mode-tabs">
+      <button class="tab-pill active" onclick="sampMode('ai',this)">🤖 AI Practice Generator</button>
+      <button class="tab-pill" onclick="sampMode('official',this)">📘 Official Study Materials</button>
+    </div>
+
+    <!-- AI GENERATOR MODE -->
+    <div id="samp-ai-mode">
     <!-- Book selector -->
     <div class="card mb-12" style="padding:14px 16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
@@ -1075,7 +1120,13 @@ What would you like to work on?</div>
         <button class="btn btn-ghost btn-sm" onclick="cambShuffle()" title="Random book & test">🔀 Random</button>
       </div>
       <!-- Book numbers grid -->
-      <div id="camb-book-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      <div id="camb-book-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+      </div>
+      <!-- Book info panel -->
+      <div id="camb-book-info" style="display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:2px;">
+        <div class="fw-700 text-sm" id="camb-book-info-title"></div>
+        <div class="text-xs" style="color:var(--amber);margin:2px 0;" id="camb-book-info-topics"></div>
+        <div class="text-xs text-muted" id="camb-book-info-desc"></div>
       </div>
       <!-- Test selector -->
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -1111,6 +1162,13 @@ What would you like to work on?</div>
     <div id="samp-sub-reading" style="display:none;"></div>
     <div id="samp-sub-speaking" style="display:none;"></div>
     <div id="samp-sub-listening" style="display:none;"></div>
+    </div><!-- end samp-ai-mode -->
+
+    <!-- OFFICIAL MATERIALS MODE -->
+    <div id="samp-official-mode" style="display:none;">
+      <div id="samp-official-content"></div>
+    </div>
+
   </div>
 
   </div><!-- end #content -->
@@ -1156,6 +1214,7 @@ What would you like to work on?</div>
 </div>
 
 <script>
+
 // ════════════════════════════════════════
 // DATA LAYER
 // ════════════════════════════════════════
@@ -1233,62 +1292,137 @@ function checkBadges(){
 // ════════════════════════════════════════
 // AI API
 // ════════════════════════════════════════
-async function callAI(messages, system) {
+// ── AI Engine ── smart token allocation, retry on rate-limit, abort on demand
+let _aiAbortCtrl = null;
+
+async function callAI(messages, system, opts) {
+  opts = opts || {};
+  const maxTok = opts.maxTokens || 1500;
+  const temp   = opts.temperature !== undefined ? opts.temperature : 0.72;
+
   const isLocal = window.location.protocol === 'file:' ||
                   window.location.hostname === 'localhost' ||
                   window.location.hostname === '127.0.0.1';
 
-  // Build Groq-compatible messages (OpenAI format)
   const groqMessages = [];
   if (system && system.trim()) groqMessages.push({ role: 'system', content: system.trim() });
   for (const m of messages) groqMessages.push({ role: m.role, content: m.content });
 
   const payload = JSON.stringify({
-    model: 'llama-3.1-8b-instant',
+    model: 'llama-3.3-70b-versatile',
     messages: groqMessages,
-    max_tokens: 1024,
-    temperature: 0.7
+    max_tokens: maxTok,
+    temperature: temp
   });
 
-  let res;
-  if (isLocal) {
-    const apiKey = localStorage.getItem('ui_api_key') || '';
-    if (!apiKey) throw new Error('NO_KEY');
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-      body: payload
-    });
-  } else {
-    res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, system })
-    });
+  _aiAbortCtrl = new AbortController();
+
+  // Retry helper (handles 429 rate-limit with back-off)
+  async function attempt(retries) {
+    let res;
+    try {
+      if (isLocal) {
+        const apiKey = localStorage.getItem('ui_api_key') || '';
+        if (!apiKey) throw new Error('NO_KEY');
+        res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+          body: payload,
+          signal: _aiAbortCtrl.signal
+        });
+      } else {
+        res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages, system, maxTokens: maxTok }),
+          signal: _aiAbortCtrl.signal
+        });
+      }
+    } catch (fetchErr) {
+      if (fetchErr.name === 'AbortError') throw new Error('CANCELLED');
+      throw fetchErr;
+    }
+
+    if (res.status === 429 && retries > 0) {
+      await new Promise(r => setTimeout(r, 2000));
+      return attempt(retries - 1);
+    }
+    if (!res.ok) {
+      let e = 'HTTP ' + res.status;
+      try { const d = await res.json(); e = d?.error?.message || d?.error || e; } catch(_) {}
+      throw new Error(e);
+    }
+    const data = await res.json();
+    if (data.error) throw new Error(typeof data.error === 'string' ? data.error : data.error.message || 'AI error');
+    return data?.choices?.[0]?.message?.content || data?.text || '';
   }
 
-  if (!res.ok) {
-    let e = 'HTTP ' + res.status;
-    try { const d = await res.json(); e = d?.error?.message || d?.error || e; } catch(_) {}
-    throw new Error(e);
-  }
-
-  const data = await res.json();
-  if (data.error) throw new Error(data.error);
-
-  // Handle both Groq format (choices) and proxy format (text)
-  return data?.choices?.[0]?.message?.content || data?.text || '';
+  return attempt(2);
 }
 
-const TUTOR_SYS = `You are an expert IELTS tutor with 15+ years experience helping students reach Band 7.5+.
-You have deep knowledge of all four IELTS skills. Be specific, practical, and encouraging.
+function cancelAI() {
+  if (_aiAbortCtrl) { _aiAbortCtrl.abort(); _aiAbortCtrl = null; }
+}
 
-For WRITING analysis give: Estimated Band Score (e.g. "Estimated Band: 6.5"), then feedback on:
-1. Task Achievement/Response  2. Coherence & Cohesion  3. Lexical Resource  4. Grammatical Range & Accuracy
-Then give 3 specific improvement tips.
+// ── Smart markdown-to-HTML renderer for chat bubbles ──
+function mdToHtml(text) {
+  if (!text) return '';
+  let t = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/__(.+?)__/g,'<strong>$1</strong>')
+    // Italic
+    .replace(/\*([^*\n]+?)\*/g,'<em>$1</em>')
+    // Inline code
+    .replace(/`([^`\n]+?)`/g,'<code style="background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px;">$1</code>')
+    // Horizontal rule
+    .replace(/^━+$/gm,'<hr style="border:none;border-top:1px solid var(--border2);margin:10px 0;">')
+    .replace(/^─+$/gm,'<hr style="border:none;border-top:1px solid var(--border2);margin:10px 0;">')
+    // H3
+    .replace(/^### (.+)$/gm,'<div style="font-weight:700;color:var(--blue2);margin:10px 0 4px;font-size:14px;">$1</div>')
+    // H2
+    .replace(/^## (.+)$/gm,'<div style="font-weight:800;color:var(--text);margin:12px 0 5px;font-size:15px;">$1</div>')
+    // H1 — rarely used
+    .replace(/^# (.+)$/gm,"<div style=\"font-family:'Lora',serif;font-weight:700;color:var(--text);margin:12px 0 6px;font-size:16px;\">$1</div>")
+    // Numbered list items
+    .replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:7px;margin:3px 0;"><span style="color:var(--blue2);font-weight:700;min-width:18px;">$1.</span><span>$2</span></div>')
+    // Bullet list items
+    .replace(/^[-•] (.+)$/gm,'<div style="display:flex;gap:7px;margin:3px 0;"><span style="color:var(--blue2);margin-top:2px;">•</span><span>$1</span></div>')
+    // Band score lines — highlight
+    .replace(/(Band \d\.?\d?)/g,'<span style="background:var(--blue-dim);color:var(--blue2);border-radius:4px;padding:1px 6px;font-weight:700;">$1</span>')
+    // Score lines like "7.5/9"
+    .replace(/(\d\.?\d?\/9)/g,'<span style="font-weight:700;color:var(--amber);">$1</span>')
+    // Newlines → <br>
+    .replace(/\n/g,'<br>');
+  return t;
+}
 
-For SPEAKING feedback: fluency, vocabulary, grammar, pronunciation tips + model answer.
-Use clear formatting, bullet points, and IELTS-specific terminology. Be honest but constructive.`;
+
+function getTutorSys() {
+  const name = P.name || 'Learner';
+  const target = P.target || 7.5;
+  const bands = P.bands || {};
+  const skillSummary = Object.entries(bands).filter(([,v])=>v>0)
+    .map(([k,v])=>`${k}: Band ${v}`).join(', ') || 'not yet assessed';
+  return `You are an expert IELTS tutor named Aria, with 15+ years experience. You are tutoring ${name} who is targeting Band ${target}.
+Current skill bands: ${skillSummary}.
+
+Your teaching style:
+• Be specific, practical, and genuinely encouraging — never vague
+• Use concrete IELTS examples, not generic advice
+• Give structured feedback using markdown: **bold** for key terms, numbered lists for steps
+• For writing/speaking analysis: always give an estimated band score and 3 actionable improvement tips
+• For questions: give a clear direct answer first, then elaboration
+• Reference the 4 IELTS marking criteria when relevant: Task Achievement, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy
+• Keep responses focused — quality over length
+
+Respond in clean markdown. Use ## for section headers, **bold** for emphasis, numbered lists for tips/steps, bullet points for features.`;
+}
+
+// Legacy alias
+const TUTOR_SYS = `You are an expert IELTS tutor. Be specific, practical, and encouraging.`;
+
 
 // ════════════════════════════════════════
 // NAVIGATION
@@ -1459,6 +1593,27 @@ function renderDashboard(){
   // quiz button
   const qLabel = document.getElementById('qa-quiz-label');
   if(qLabel) qLabel.textContent = P.dailyQuizDone===today()?'Quiz Done ✓':'Daily Quiz';
+
+  // Smart insight card
+  const insightEl = document.getElementById('dash-insight');
+  if (insightEl) {
+    const b = avgBand();
+    const skills = Object.entries(P.bands||{}).filter(([,v])=>v>0);
+    let insight = '';
+    if (!b) {
+      insight = '🚀 <strong>Get started:</strong> Take a mock test to get your first band score and unlock personalised advice!';
+    } else {
+      // Find weakest skill
+      const weakest = skills.sort((a,b2)=>a[1]-b2[1])[0];
+      const gap = (P.target - b).toFixed(1);
+      if (parseFloat(gap) > 0) {
+        insight = `🎯 You need <strong>+${gap} bands</strong> to reach Band ${P.target}. Focus today: <strong>${weakest ? weakest[0] : 'Writing'}</strong> is your weakest area — practise it first.`;
+      } else {
+        insight = `🏆 <strong>Target reached!</strong> Band ${b} — you're at your target of ${P.target}. Keep practising to stay sharp!`;
+      }
+    }
+    insightEl.innerHTML = insight;
+  }
 
   // badges
   const BDEFS = {
@@ -1693,58 +1848,87 @@ async function sendMessage(text){
   if(chatLoading) return;
   chatLoading=true;
   touchStreak(); updateHeaders();
+  const btn = document.getElementById('chat-send-btn');
+  if(btn){ btn.innerHTML='⏳'; btn.disabled=true; }
 
-  // Add user bubble
   const cm = document.getElementById('chat-messages');
-  cm.innerHTML += `<div class="chat-row user">
-    <div class="chat-avatar user">👤</div>
-    <div class="chat-bubble chat-user">${escHtml(text)}</div>
-  </div>`;
 
-  // Add loading bubble
+  // User bubble
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-row user';
+  userDiv.innerHTML = `<div class="chat-avatar user">👤</div><div class="chat-bubble chat-user">${escHtml(text)}</div>`;
+  cm.appendChild(userDiv);
+
+  // Loading bubble with cancel button
   const loadId = 'load'+Date.now();
-  cm.innerHTML += `<div class="chat-row" id="${loadId}">
-    <div class="chat-avatar ai">🤖</div>
-    <div class="chat-bubble chat-ai"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
-  </div>`;
-  cm.scrollTop=cm.scrollHeight;
+  const loadDiv = document.createElement('div');
+  loadDiv.id = loadId;
+  loadDiv.className = 'chat-row';
+  loadDiv.innerHTML = `<div class="chat-avatar ai">🤖</div>
+    <div class="chat-bubble chat-ai" style="display:flex;align-items:center;gap:12px;">
+      <span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>
+      <button onclick="cancelAI();showToast('Cancelled')" style="font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;">✕ Cancel</button>
+    </div>`;
+  cm.appendChild(loadDiv);
+  cm.scrollTop = cm.scrollHeight;
 
-  // Build message history
+  // Build history — last 16 turns for context efficiency
   const apiMsgs = [
-    ...P.chatHistory.slice(-20),
-    {role:'user',content:text}
+    ...(P.chatHistory||[]).slice(-16),
+    {role:'user', content:text}
   ];
 
-  try{
-    const reply = await callAI(apiMsgs, TUTOR_SYS);
-    document.getElementById(loadId).remove();
-    cm.innerHTML += `<div class="chat-row">
-      <div class="chat-avatar ai">🤖</div>
-      <div class="chat-bubble chat-ai">${escHtml(reply)}</div>
-    </div>`;
-    // save to history
-    P.chatHistory = [...(P.chatHistory||[]),{role:'user',content:text},{role:'assistant',content:reply}].slice(-60);
+  try {
+    const reply = await callAI(apiMsgs, getTutorSys(), {maxTokens:1800, temperature:0.72});
+    const el = document.getElementById(loadId);
+    if(el) el.remove();
+
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'chat-row';
+    aiDiv.innerHTML = `<div class="chat-avatar ai">🤖</div>
+      <div class="chat-bubble chat-ai" style="font-size:14px;line-height:1.75;">${mdToHtml(reply)}</div>`;
+    cm.appendChild(aiDiv);
+
+    // Save history
+    P.chatHistory = [...(P.chatHistory||[]),
+      {role:'user',content:text},
+      {role:'assistant',content:reply}
+    ].slice(-60);
     save();
-  } catch(e){
-    document.getElementById(loadId).remove();
-    let errMsg = '⚠️ ' + (e.message || 'Unknown error');
-    if (e.message === 'NO_KEY') {
-      errMsg = '🔑 No API key. Go to ⚙️ Settings → add your FREE Gemini API key from aistudio.google.com';
-    } else if (e.message && (e.message.includes('GEMINI_API_KEY') || e.message.includes('not set') || e.message.includes('API key'))) {
-      errMsg = '🔑 GEMINI_API_KEY missing. Vercel → Settings → Environment Variables → add GEMINI_API_KEY → Redeploy.';
+  } catch(e) {
+    const el = document.getElementById(loadId);
+    if(el) el.remove();
+    if(e.message === 'CANCELLED') { _resetChat(); return; }
+
+    let errMsg = '⚠️ ' + (e.message || 'Connection error');
+    if(e.message === 'NO_KEY') {
+      errMsg = '🔑 No API key set. Go to ⚙️ Settings → paste your FREE Groq key (get one at console.groq.com).';
+    } else if(e.message && e.message.includes('429')) {
+      errMsg = '⏳ Rate limit hit — please wait a moment and try again.';
+    } else if(e.message && e.message.toLowerCase().includes('api key')) {
+      errMsg = '🔑 API key issue. Check Settings → your Groq key may be invalid or expired.';
     }
-    cm.innerHTML += `<div class="chat-row">
-      <div class="chat-avatar ai">🤖</div>
-      <div class="chat-bubble chat-ai" style="color:var(--amber);word-break:break-word;">${escHtml(errMsg)}</div>
-    </div>`;
+    const errDiv = document.createElement('div');
+    errDiv.className = 'chat-row';
+    errDiv.innerHTML = `<div class="chat-avatar ai">🤖</div>
+      <div class="chat-bubble chat-ai" style="color:var(--amber);">${escHtml(errMsg)}</div>`;
+    cm.appendChild(errDiv);
   }
-  cm.scrollTop=cm.scrollHeight;
-  chatLoading=false;
+  cm.scrollTop = cm.scrollHeight;
+  _resetChat();
+}
+
+function _resetChat() {
+  chatLoading = false;
+  const btn = document.getElementById('chat-send-btn');
+  if (btn) { btn.innerHTML = '➤'; btn.disabled = false; }
 }
 
 function escHtml(t){
+  if(typeof t !== 'string') t = String(t||'');
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
+
 
 // ════════════════════════════════════════
 // MOCK TESTS
@@ -2017,19 +2201,42 @@ function renderTestsHome(){
         </div>
         ${t.band?`<span class="band-badge" style="background:${bandColor(t.band)}">${t.band}</span>`:''}
       </div>`).join('');
-  
+  } else {
+    rr.style.display='none';
+  }
   renderTestsHomeWithGenerate();
 }
 
 function startTest(id){
   testActive = TESTS[id];
-  testTimeLeft = testActive.mins*60;
-  document.getElementById('tests-home').style.display='none';
-  document.getElementById('test-active').style.display='block';
-  document.getElementById('test-feedback').style.display='none';
-  document.getElementById('test-name').textContent = testActive.label;
-  document.getElementById('test-prompt').textContent = testActive.prompt;
-  document.getElementById('test-answer').value='';
+  if(id === 'listening'){
+    testTimeLeft = 30*60;
+    document.getElementById('tests-home').style.display='none';
+    document.getElementById('test-active').style.display='block';
+    document.getElementById('test-feedback').style.display='none';
+    document.getElementById('test-name').textContent = 'Listening Test — 4 Sections';
+    const lp = document.getElementById('listening-player');
+    const nlp = document.getElementById('non-listening-prompt');
+    if(lp) lp.style.display='block';
+    if(nlp) nlp.style.display='none';
+    loadListeningSection(0, null);
+  } else {
+    testTimeLeft = testActive.mins*60;
+    document.getElementById('tests-home').style.display='none';
+    document.getElementById('test-active').style.display='block';
+    document.getElementById('test-feedback').style.display='none';
+    document.getElementById('test-name').textContent = testActive.label;
+    document.getElementById('test-prompt').textContent = testActive.prompt;
+    document.getElementById('test-answer').value='';
+    // Clear writing textarea and draft
+    const wEl = document.getElementById('test-answer-writing');
+    if(wEl){ wEl.value=''; updateWordCount(wEl); }
+    try { localStorage.removeItem('ielts_draft'); } catch(e){}
+    const lp = document.getElementById('listening-player');
+    const nlp = document.getElementById('non-listening-prompt');
+    if(lp) lp.style.display='none';
+    if(nlp) nlp.style.display='block';
+  }
   updateTestTimer();
   if(testTimer) clearInterval(testTimer);
   testTimer = setInterval(()=>{
@@ -2056,6 +2263,7 @@ function abandonTest(){
 }
 
 async function submitTest(){
+  if(typeof _patchListeningSubmit === 'function') _patchListeningSubmit();
   if(testTimer) clearInterval(testTimer);
   touchStreak();
   document.getElementById('test-active').style.display='none';
@@ -2077,7 +2285,10 @@ async function submitTest(){
     const reply = await callAI([{role:'user',content:prompt}], testActive.system);
     document.getElementById('feedback-loading').style.display='none';
     document.getElementById('feedback-text').style.display='block';
-    document.getElementById('feedback-text').textContent=reply;
+    // Use rich markdown rendering for feedback
+    const renderFn2 = typeof mdToHtml === 'function' ? mdToHtml : escHtml;
+    document.getElementById('feedback-text').innerHTML = renderFn2(reply);
+    document.getElementById('feedback-text').style.whiteSpace = 'normal';
     // extract band — matches "Overall Band: 7.0" or "Estimated Band: 6.5" or "Band 7"
     const m = reply.match(/(?:Overall Band|Estimated Band)[:\s]+([0-9]\.?[0-9]?)/i)
            || reply.match(/Band[:\s]+([0-9]\.?[0-9]?)/i);
@@ -3164,7 +3375,12 @@ function renderResources(cat){
 function setResTab(cat, btn){
   document.querySelectorAll('#page-resources .tab-pill').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  renderResources(cat);
+  const aiBar = document.getElementById('res-ai-bar');
+  const list = document.getElementById('resources-list');
+  if(list) list.dataset.cat = cat;
+  if(aiBar) aiBar.style.display = cat === 'liz' ? 'none' : '';
+  if(cat === 'liz') renderLizHub();
+  else renderResources(cat);
 }
 
 function toggleAccordion(id){
@@ -3234,11 +3450,18 @@ function startQuiz(){
   renderQuestion();
 }
 
+const _quizTypeColors = {
+  'Vocabulary':'tag-violet','Grammar':'tag-blue','Reading':'tag-green',
+  'Listening':'tag-amber','Writing':'tag-pink'
+};
+
 function renderQuestion(){
   const q=QUIZ_BANK[quizIdx];
   document.getElementById('q-num').textContent=quizIdx+1;
   document.getElementById('q-total').textContent=QUIZ_BANK.length;
-  document.getElementById('q-type').textContent=q.type;
+  const qtEl = document.getElementById('q-type');
+  qtEl.textContent=q.type;
+  qtEl.className='tag '+(_quizTypeColors[q.type]||'tag-blue');
   document.getElementById('quiz-bar').style.width=(quizIdx/QUIZ_BANK.length*100)+'%';
   document.getElementById('q-text').textContent=q.q;
   document.getElementById('q-explanation').style.display='none';
@@ -3248,7 +3471,8 @@ function renderQuestion(){
   opts.innerHTML=q.opts.map((opt,i)=>`
     <button class="quiz-opt" id="opt-${i}" onclick="selectOpt(${i})">
       <span class="opt-letter">${String.fromCharCode(65+i)}</span>
-      ${escHtml(opt)}
+      <span>${escHtml(opt)}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--border2);">${i+1}</span>
     </button>`).join('');
 }
 
@@ -3308,6 +3532,43 @@ function resetQuiz(){
   renderQuizHome();
 }
 
+// Quiz keyboard shortcuts: 1-4 select option, Enter = next
+function _quizKeyHandler(e) {
+  const page = document.getElementById('page-quiz');
+  if (!page || !page.classList.contains('active')) return;
+  if (document.getElementById('quiz-active').style.display === 'none') return;
+  const k = e.key;
+  if (['1','2','3','4'].includes(k)) {
+    e.preventDefault();
+    const idx = parseInt(k) - 1;
+    const btn = document.getElementById('opt-'+idx);
+    if (btn && !btn.classList.contains('locked')) selectOpt(idx);
+  } else if (k === 'Enter') {
+    e.preventDefault();
+    const nb = document.getElementById('next-btn');
+    if (nb && nb.style.display !== 'none') nextQuestion();
+  }
+}
+document.addEventListener('keydown', _quizKeyHandler);
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // Ctrl+Enter = submit test (when in test view)
+  if (e.ctrlKey && e.key === 'Enter') {
+    const testActive = document.getElementById('test-active');
+    if (testActive && testActive.style.display !== 'none') {
+      e.preventDefault();
+      submitTest();
+    }
+  }
+  // Escape = cancel AI or close modal
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('modal-overlay');
+    if (modal && modal.classList.contains('open')) { closeModal({target:modal}); return; }
+    if (chatLoading) { cancelAI(); showToast('AI request cancelled'); }
+  }
+});
+
 // ════════════════════════════════════════
 // ROADMAP
 // ════════════════════════════════════════
@@ -3326,6 +3587,20 @@ function renderRoadmap(){
   document.getElementById('rm-pct').textContent=pct+'%';
   document.getElementById('rm-bar').style.width=pct+'%';
   document.getElementById('rm-slider').value=P.roadmapDay||1;
+
+  // Motivational message
+  const rmMsg = document.getElementById('rm-msg');
+  if (rmMsg) {
+    const pctVal = Math.round((P.studyDays.length/90)*100);
+    let msg = '';
+    if (pctVal===0) msg="🚀 Your journey begins today. Day 1 is always the hardest — just start!";
+    else if (pctVal<25) msg="🌱 Great start! The habit is forming. Keep showing up daily.";
+    else if (pctVal<50) msg="⚡ You're building real momentum. Stay consistent — it compounds!";
+    else if (pctVal<75) msg="🔥 Over halfway! You've proven you can do this. Push through!";
+    else if (pctVal<100) msg="🏆 Almost there! The finish line is in sight. Give it everything!";
+    else msg="✅ 90 days complete! You're ready for exam day. Believe in your preparation.";
+    rmMsg.textContent = msg;
+  }
 
   const ph=document.getElementById('roadmap-phases');
   ph.innerHTML=ROADMAP_PHASES.map((p,i)=>`
@@ -3378,20 +3653,21 @@ function renderAnalytics(){
   const skills=[{n:'Reading',k:'reading',c:'var(--blue)'},{n:'Writing',k:'writing',c:'var(--violet)'},{n:'Speaking',k:'speaking',c:'var(--pink)'},{n:'Listening',k:'listening',c:'var(--green)'}];
   document.getElementById('an-skills').innerHTML=skills.map(s=>{
     const v=P.bands[s.k]; const pct=v?(v/9)*100:0;
-    const diff=v?((P.target-v)>0?(P.target-v).toFixed(1)+' to go':'✅ Target met!'):'Not tested';
-    return `<div style="margin-bottom:16px;">
-      <div class="flex-between mb-6">
-        <span class="text-sm text-muted">${s.n}</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;color:var(--text3);">${diff}</span>
-          <span class="fw-700 text-sm" style="color:${s.c}">${v?'Band '+v:'—'}</span>
-        </div>
-      </div>
-      <div class="bar-wrap" style="height:9px;position:relative;">
-        <div class="bar-fill" style="height:9px;background:${s.c};width:${pct}%;"></div>
-        <div style="position:absolute;top:-2px;left:${(P.target/9)*100}%;width:2px;height:13px;background:#ffffff30;transform:translateX(-50%);"></div>
-      </div>
-    </div>`;
+    const targetPct=(P.target/9)*100;
+    const gap=v?P.target-v:null;
+    const diff=v?(gap>0?'+'+gap.toFixed(1)+' to go':'\u2705 Target met!'):'Not tested';
+    const diffColor=v?(gap>0?'var(--amber)':'var(--green)'):'var(--text3)';
+    return '<div style="margin-bottom:16px;">'
+      +'<div class="flex-between mb-6">'
+      +'<span class="text-sm fw-700">'+s.n+'</span>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<span style="font-size:12px;font-weight:600;color:'+diffColor+'">'+diff+'</span>'
+      +'<span class="fw-700 text-sm" style="color:'+s.c+'">'+(v?'Band '+v:'\u2014')+'</span>'
+      +'</div></div>'
+      +'<div class="bar-wrap" style="height:10px;position:relative;">'
+      +'<div class="bar-fill" style="height:10px;background:'+s.c+';width:'+pct+'%;"></div>'
+      +'<div style="position:absolute;top:-3px;left:'+targetPct+'%;width:2px;height:16px;background:rgba(255,255,255,0.35);transform:translateX(-50%);border-radius:1px;"></div>'
+      +'</div></div>';
   }).join('');
 
   // Quiz chart
@@ -3416,9 +3692,64 @@ function renderAnalytics(){
           <div class="text-sm fw-700">${t.test}</div>
           <div class="text-xs text-muted">${t.date}</div>
         </div>
-        ${t.band?`<span class="band-badge" style="background:${bandColor(t.band)}">${t.band}</span>`:''}
+        ${t.band?'<span class="band-badge" style="background:'+bandColor(t.band)+'">'+t.band+'</span>':''}
       </div>`).join('');
   }
+
+  // Band trend sparkline
+  renderBandTrendChart();
+
+  // Prediction card
+  const predCard = document.getElementById('an-pred-card');
+  if(predCard){
+    const bh = P.bandHistory||[];
+    if(bh.length>=2){
+      predCard.style.display='block';
+      const latest=bh[bh.length-1].band, first=bh[0].band;
+      const dayCount=Math.max(P.studyDays.length,1);
+      const rate=(latest-first)/dayCount;
+      const predEl=document.getElementById('an-pred-text');
+      if(predEl){
+        if(rate>0){
+          const daysLeft=Math.ceil((P.target-latest)/rate);
+          predEl.textContent = daysLeft<=0
+            ? '\u{1F389} You have reached your target band! Keep practising to stay sharp.'
+            : 'At your current rate, you will reach Band '+P.target+' in approximately '+daysLeft+' more study days.';
+        } else {
+          predEl.textContent = 'Keep practising \u2014 your prediction will appear once band scores start improving.';
+        }
+      }
+    }
+  }
+}
+
+function renderBandTrendChart(){
+  const chartCard=document.getElementById('an-band-trend-card');
+  const svgEl=document.getElementById('an-band-trend-svg');
+  if(!chartCard||!svgEl) return;
+  const bh=(P.bandHistory||[]);
+  if(bh.length<2) return;
+  chartCard.style.display='block';
+  const pts=bh.slice(-16);
+  const W=260,H=75,minB=3,maxB=9;
+  const xs=pts.map((_,i)=>Math.round(10+(i/(pts.length-1))*(W-20)));
+  const ys=pts.map(p=>Math.round(H-((p.band-minB)/(maxB-minB))*(H-8)));
+  const polyline=xs.map((x,i)=>x+','+ys[i]).join(' ');
+  const skillColors={reading:'#3b82f6',writing:'#7c3aed',speaking:'#db2777',listening:'#059669'};
+  const dots=pts.map((p,i)=>{
+    const c=skillColors[p.skill]||'#3b82f6';
+    return '<circle cx="'+xs[i]+'" cy="'+ys[i]+'" r="4.5" fill="'+c+'" stroke="#020c1b" stroke-width="2">'
+      +'<title>'+p.skill+' Band '+p.band+' ('+p.date+')</title></circle>';
+  }).join('');
+  const ty=Math.round(H-((P.target-minB)/(maxB-minB))*(H-8));
+  const tLine='<line x1="10" y1="'+ty+'" x2="'+(W-10)+'" y2="'+ty+'" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.8"/>';
+  const labels=[4,5,6,7,8,9].map(b=>{
+    const ly=Math.round(H-((b-minB)/(maxB-minB))*(H-8));
+    return '<text x="4" y="'+(ly+3)+'" font-size="8" fill="rgba(148,163,184,0.35)">'+b+'</text>';
+  }).join('');
+  svgEl.innerHTML=labels+tLine
+    +'<polyline points="'+polyline+'" fill="none" stroke="var(--blue2)" stroke-width="2" stroke-linejoin="round" opacity="0.65"/>'
+    +dots;
 }
 
 // ════════════════════════════════════════
@@ -4194,6 +4525,28 @@ function setTargetBand(b, btn){
   });
 }
 
+async function testAIConnection() {
+  const el = document.getElementById('ai-test-result');
+  if (el) { el.style.color='var(--text3)'; el.textContent='Testing...'; }
+  try {
+    const reply = await callAI([{role:'user',content:'Reply with exactly: CONNECTION OK'}],
+      'You are a test bot. Reply with exactly the text you are asked to.', {maxTokens:20, temperature:0});
+    if (el) {
+      if (reply && reply.includes('OK')) {
+        el.style.color='var(--green)'; el.textContent='✅ AI connected! Model responding normally.';
+      } else {
+        el.style.color='var(--amber)'; el.textContent='⚠️ Connected but unexpected reply: '+reply.slice(0,40);
+      }
+    }
+  } catch(e) {
+    if (el) {
+      el.style.color='var(--red)';
+      if(e.message==='NO_KEY') el.textContent='❌ No API key saved — go to API Key section above.';
+      else el.textContent='❌ Connection failed: '+e.message.slice(0,60);
+    }
+  }
+}
+
 function saveSettings(){
   const name=document.getElementById('set-name').value.trim();
   if(!name){ showToast('Name cannot be empty'); return; }
@@ -4233,6 +4586,46 @@ function closeModal(e){
   if(e.target===document.getElementById('modal-overlay')){
     document.getElementById('modal-overlay').classList.remove('open');
   }
+}
+
+// ════════════════════════════════════════
+// WORD COUNT + DRAFT SAVE
+// ════════════════════════════════════════
+function updateWordCount(el) {
+  const text = el.value.trim();
+  const words = text ? text.split(/\s+/).filter(w=>w.length>0).length : 0;
+  const numEl = document.getElementById('word-count-num');
+  const statusEl = document.getElementById('word-count-status');
+  if (!numEl) return;
+  numEl.textContent = words;
+  // Determine target from active test
+  const target = (testActive && testActive.skill === 'writing') ?
+    (testActive.label && testActive.label.includes('Task 1') ? 150 : 250) : 150;
+  if (words === 0) {
+    numEl.style.color = 'var(--text3)';
+    if(statusEl) { statusEl.textContent = ''; }
+  } else if (words < target) {
+    numEl.style.color = 'var(--amber)';
+    if(statusEl) { statusEl.textContent = `${target - words} more needed`; statusEl.style.color='var(--amber)'; }
+  } else {
+    numEl.style.color = 'var(--green)';
+    if(statusEl) { statusEl.textContent = '✓ Word count met'; statusEl.style.color='var(--green)'; }
+  }
+  // Auto-save draft to localStorage
+  try { localStorage.setItem('ielts_draft', text); } catch(e){}
+}
+
+function restoreDraft() {
+  const el = document.getElementById('test-answer-writing');
+  if (!el) return;
+  try {
+    const draft = localStorage.getItem('ielts_draft');
+    if (draft && draft.length > 10) {
+      el.value = draft;
+      updateWordCount(el);
+      showToast('Draft restored 📄');
+    }
+  } catch(e){}
 }
 
 // ════════════════════════════════════════
@@ -5685,58 +6078,18 @@ function listenStop() {
   lsPaused = false;
 }
 
-// Override startTest to handle listening specially
-const _origStartTest = startTest;
-function startTest(id) {
-  if (id === 'listening') {
-    // set up listening mode
-    testActive = TESTS[id];
-    testTimeLeft = 30 * 60;
-    document.getElementById('tests-home').style.display = 'none';
-    document.getElementById('test-active').style.display = 'block';
-    document.getElementById('test-feedback').style.display = 'none';
-    document.getElementById('test-name').textContent = 'Listening Test — 4 Sections';
-
-    // show listening player, hide writing prompt
-    document.getElementById('listening-player').style.display = 'block';
-    document.getElementById('non-listening-prompt').style.display = 'none';
-
-    // load section 1
-    loadListeningSection(0, null);
-
-    updateTestTimer();
-    if (testTimer) clearInterval(testTimer);
-    testTimer = setInterval(() => {
-      testTimeLeft--;
-      updateTestTimer();
-      if (testTimeLeft <= 0) { clearInterval(testTimer); submitTest(); }
-    }, 1000);
-  } else {
-    // hide listening player, show writing prompt
-    document.getElementById('listening-player').style.display = 'none';
-    document.getElementById('non-listening-prompt').style.display = 'block';
-    _origStartTest(id);
-  }
-}
-
-// Override submitTest to get answer from correct textarea
-const _origSubmitTest = submitTest;
-submitTest = async function() {
+// Listening submitTest patch — inlined (no duplicate function needed)
+function _patchListeningSubmit() {
   const isListening = testActive && testActive.skill === 'listening';
   if (isListening) {
     listenStop();
-    // build the full prompt including all section scripts and questions
-    const allQ = LISTENING_SECTIONS.map((sec, i) => {
-      return `--- ${sec.title} ---\nSCRIPT:\n${sec.script.trim()}\n\nQUESTIONS:\n${sec.questions.join('\n')}`;
+    const allQ = (typeof LISTENING_SECTIONS !== 'undefined' ? LISTENING_SECTIONS : []).map(sec => {
+      return '--- ' + sec.title + ' ---\nSCRIPT:\n' + sec.script.trim() + '\n\nQUESTIONS:\n' + sec.questions.join('\n');
     }).join('\n\n');
-
     const studentAnswers = document.getElementById('test-answer').value || '[No answers provided]';
-    testActive.prompt = allQ;
-    testActive._overrideAnswer = studentAnswers;
+    if(testActive) { testActive.prompt = allQ; testActive._overrideAnswer = studentAnswers; }
   }
-  // call original
-  await _origSubmitTest.call(this, ...arguments);
-};
+}
 
 
 
@@ -5819,6 +6172,7 @@ function cambSelectBook(n, btn) {
   cambBook = n;
   document.querySelectorAll('.camb-book-btn').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  cambShowBookInfo(n);
 }
 
 function cambUpdateTestBtns() {
@@ -6054,6 +6408,133 @@ function cambAskTutor() {
 // Override initSamples to init Cambridge nav
 function initSamples() {
   initCambNav();
+  const ai = document.getElementById('samp-ai-mode');
+  const off = document.getElementById('samp-official-mode');
+  if(ai) ai.style.display='';
+  if(off) off.style.display='none';
+}
+
+function sampMode(mode, btn) {
+  document.querySelectorAll('#samp-mode-tabs .tab-pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const ai = document.getElementById('samp-ai-mode');
+  const off = document.getElementById('samp-official-mode');
+  if(mode==='ai'){
+    if(ai) ai.style.display='';
+    if(off) off.style.display='none';
+  } else {
+    if(ai) ai.style.display='none';
+    if(off) off.style.display='';
+    renderOfficialMaterials();
+  }
+}
+
+const CAMB_OFFICIAL = {
+  about: 'Cambridge University Press publishes the official IELTS practice books (Cambridge IELTS 1-19) in partnership with Cambridge Assessment English. Each book contains 4 full practice tests with authentic materials from past IELTS exams, answer keys, listening tapescripts, and Band 9 model writing answers.',
+  series: [
+    {num:19, year:2024, isbn:'978-1316648438', topics:'Green Energy, Digital Privacy, Global Health', highlight:'MOST RECENT — closest to today\'s exam. AI and sustainability focus. Essential for current test prep.', tests:4},
+    {num:18, year:2023, isbn:'978-1009275156', topics:'AI Ethics, Urban Farming, Mental Health', highlight:'Cutting-edge topics with modern academic vocabulary. Excellent Band 7+ preparation.', tests:4},
+    {num:17, year:2022, isbn:'978-1108947305', topics:'Climate Science, Inequality, Ethics', highlight:'Advanced data interpretation in Reading. Modern vocabulary aligned with current exams.', tests:4},
+    {num:16, year:2021, isbn:'978-1108938211', topics:'Remote Work, Online Education, Sustainability', highlight:'Post-pandemic themes mirror real exam topics. Closest to current format among older books.', tests:4},
+    {num:15, year:2020, isbn:'978-1108781756', topics:'Intelligence, Fintech, Language Learning', highlight:'Most popular for self-study. Reflects post-2019 format changes. Four complete authentic tests.', tests:4},
+    {num:14, year:2019, isbn:'978-1108681285', topics:'Space, Nutrition, Cultural Identity', highlight:'Features process diagrams and maps in Task 1. Natural listening scripts for Section 3.', tests:4},
+    {num:13, year:2018, isbn:'978-1316638750', topics:'Automation, Social Media, Conservation', highlight:'Contemporary themes. Strong matching features tasks. Flowing speaking model transcripts.', tests:4},
+    {num:12, year:2017, isbn:'978-1316637838', topics:'Neuroscience, Business Strategy, Law', highlight:'Highest difficulty reading passages. Band 7.5+ writing samples with examiner commentary.', tests:4},
+    {num:11, year:2016, isbn:'978-1107686243', topics:'AI, Food Science, Water Resources', highlight:'Technology-focused passages. Gap-fill listening with academic spelling challenges.', tests:4},
+    {num:10, year:2015, isbn:'978-1107464612', topics:'Globalisation, Health Psychology, Urban', highlight:'Modern test format introduced. Recommended starting point for most students.', tests:4},
+    {num:9, year:2012, isbn:'978-1107401648', topics:'Biodiversity, Digital Tech, Economics', highlight:'Complex Listening Section 4 academic lectures. Sophisticated MCQ distractors.', tests:4},
+    {num:8, year:2011, isbn:'978-0521173513', topics:'Renewable Energy, Psychology, History', highlight:'Demanding reading — ideal for Band 7+ target. Strong process diagram tasks.', tests:4},
+    {num:7, year:2009, isbn:'978-0521739177', topics:'Education, Sports Science, Migration', highlight:'Excellent T/F/NG and Y/N/NG practice. Most widely-used for Band 7 preparation.', tests:4},
+    {num:6, year:2007, isbn:'978-0521693738', topics:'Climate, Transport, Archaeology', highlight:'Speaking Part 3 model answers. Challenging scientific reading passages.', tests:4},
+    {num:5, year:2006, isbn:'978-0521677509', topics:'Urban Development, Media, Health', highlight:'Multiple-answer listening introduced. Writing model answers rated Band 7.5+.', tests:4},
+  ],
+  questionTypes: {
+    reading: ['True / False / Not Given','Yes / No / Not Given','Matching Headings','Multiple Choice','Gap Fill / Summary Completion','Matching Information / Features','Short Answer Questions','Sentence Endings','Diagram Labelling'],
+    listening: ['Form / Note Completion','Multiple Choice','Map / Plan / Diagram Labelling','Matching','Table Completion','Flowchart Completion','Sentence Completion'],
+    writing: ['Task 1: Bar Chart','Task 1: Line Graph','Task 1: Pie Chart','Task 1: Table','Task 1: Process Diagram','Task 1: Map','Task 1 GT: Formal Letter','Task 1 GT: Informal Letter','Task 2: Opinion Essay','Task 2: Discussion (Both Views)','Task 2: Advantages/Disadvantages','Task 2: Problem/Solution','Task 2: Direct Questions'],
+    speaking: ['Part 1: Personal Questions (4-5 min)','Part 2: Cue Card / Long Turn (3-4 min)','Part 3: Two-way Discussion (4-5 min)'],
+  },
+  markingCriteria: {
+    writing: ['Task Achievement / Response (25%)','Coherence & Cohesion (25%)','Lexical Resource / Vocabulary (25%)','Grammatical Range & Accuracy (25%)'],
+    speaking: ['Fluency & Coherence (25%)','Lexical Resource / Vocabulary (25%)','Grammatical Range & Accuracy (25%)','Pronunciation (25%)'],
+  },
+  studyPlan: [
+    {week:'Weeks 1-2', focus:'Diagnosis & Foundations', tasks:'Take Cambridge IELTS 10 Test 1 under timed conditions. Identify weakest skill. Study relevant question type strategies.'},
+    {week:'Weeks 3-5', focus:'Reading Mastery', tasks:'Complete 8 reading passages from Books 10-15. Focus on T/F/NG, Matching Headings, Gap Fill techniques.'},
+    {week:'Weeks 6-8', focus:'Writing Development', tasks:'Write 1 Task 1 + 1 Task 2 per week. Compare with Books 12-15 Band 9 model answers.'},
+    {week:'Weeks 9-11', focus:'Listening Accuracy', tasks:'Complete Sections 1-4 from Books 13-17. Focus on correction traps, map questions, and spelling.'},
+    {week:'Weeks 12-14', focus:'Speaking Fluency', tasks:'Record yourself on 10 Part 2 cue cards from Books 14-18. Self-assess using official marking criteria.'},
+    {week:'Weeks 15-16', focus:'Full Mock Tests', tasks:'Complete 3 full tests from Books 17-19 under exam conditions. Time yourself precisely for all sections.'},
+  ],
+};
+
+function renderOfficialMaterials() {
+  const el = document.getElementById('samp-official-content');
+  if(!el) return;
+  const skillIcons = {reading:'📖',listening:'🎧',writing:'✍️',speaking:'🎤'};
+  let html = '';
+  // Hero
+  html += '<div class="card mb-12" style="background:linear-gradient(135deg,#0c2340,var(--bg2));border:1px solid var(--blue);">'
+    + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">'
+    + '<span style="font-size:32px;">📘</span>'
+    + '<div><div class="fw-700" style="font-size:15px;color:var(--blue2);">Cambridge IELTS Official Series 1-19</div>'
+    + '<div class="text-xs text-muted">Published by Cambridge University Press · Cambridge Assessment English</div></div>'
+    + '</div>'
+    + '<div class="text-sm" style="color:var(--text2);line-height:1.7;">' + escHtml(CAMB_OFFICIAL.about) + '</div>'
+    + '</div>';
+  // Books
+  html += '<div class="fw-700 mb-8" style="font-size:13px;">📚 All 15 Books — Detailed Reference (Books 5-19)</div>';
+  CAMB_OFFICIAL.series.forEach(b => {
+    const recBadge = b.num >= 17 ? '<span style="background:var(--green);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;margin-left:6px;">RECOMMENDED</span>' : '';
+    html += '<div class="accordion" id="off-book-'+b.num+'">'
+      + '<div class="accordion-head" onclick="toggleAccordion(\'off-book-'+b.num+'\')">'
+      + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+      + '<span style="background:var(--blue-dim);color:var(--blue2);border-radius:6px;padding:3px 10px;font-weight:700;font-size:14px;min-width:28px;text-align:center;">' + b.num + '</span>'
+      + '<div>'
+      + '<div class="fw-700 text-sm">Cambridge IELTS ' + b.num + recBadge + ' <span class="text-muted text-xs fw-400">(' + b.year + ')</span></div>'
+      + '<div class="text-xs" style="color:var(--amber);">' + b.topics + '</div>'
+      + '</div></div>'
+      + '<span class="acc-chevron">▼</span></div>'
+      + '<div class="accordion-body">'
+      + '<div class="text-sm" style="color:var(--text2);margin-bottom:8px;">' + escHtml(b.highlight) + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:10px;">'
+      + '<div class="text-xs"><span class="text-muted">Year:</span> ' + b.year + '</div>'
+      + '<div class="text-xs"><span class="text-muted">Tests included:</span> ' + b.tests + '</div>'
+      + '<div class="text-xs" style="grid-column:1/-1;"><span class="text-muted">ISBN:</span> ' + b.isbn + '</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+      + '<button class="btn btn-primary btn-sm" onclick="cambSelectBook('+b.num+',null);sampMode(\'ai\',document.querySelector(\'#samp-mode-tabs .tab-pill\'))">🤖 AI Practice — Book '+b.num+'</button>'
+      + '</div>'
+      + '</div></div>';
+  });
+  // Question types
+  html += '<div class="fw-700 mt-16 mb-8" style="font-size:13px;">📋 Official Question Types Reference</div>';
+  Object.entries(CAMB_OFFICIAL.questionTypes).forEach(([skill, types]) => {
+    html += '<div class="card mb-8">'
+      + '<div class="fw-700 text-sm mb-8">' + (skillIcons[skill]||'') + ' ' + skill.charAt(0).toUpperCase()+skill.slice(1) + ' (' + types.length + ' types)</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:5px;">'
+      + types.map((t,i) => '<span style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;color:var(--text2);">' + t + '</span>').join('')
+      + '</div></div>';
+  });
+  // Marking criteria
+  html += '<div class="fw-700 mt-16 mb-8" style="font-size:13px;">⭐ Official IELTS Marking Criteria</div>';
+  Object.entries(CAMB_OFFICIAL.markingCriteria).forEach(([skill, criteria]) => {
+    html += '<div class="card mb-8">'
+      + '<div class="fw-700 text-sm mb-8">' + (skillIcons[skill]||'') + ' ' + skill.charAt(0).toUpperCase()+skill.slice(1) + ' Marking (each criterion = 25%)</div>'
+      + criteria.map(c => '<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);">✅ ' + c + '</div>').join('')
+      + '</div>';
+  });
+  // Study plan
+  html += '<div class="fw-700 mt-16 mb-8" style="font-size:13px;">🗓️ 16-Week Cambridge Books Study Plan</div>'
+    + '<div class="card mb-12">'
+    + CAMB_OFFICIAL.studyPlan.map(p =>
+      '<div style="padding:8px 0;border-bottom:1px solid var(--border);">'
+      + '<div class="fw-700 text-sm" style="color:var(--blue2);">' + p.week + ': ' + p.focus + '</div>'
+      + '<div class="text-xs text-muted" style="margin-top:3px;line-height:1.6;">' + escHtml(p.tasks) + '</div>'
+      + '</div>'
+    ).join('')
+    + '</div>';
+  el.innerHTML = html;
 }
 
 // Add book button CSS dynamically
@@ -6963,6 +7444,822 @@ function completeLessonStep() {
 
   // Return to unit list
   courseBackToUnits();
+}
+
+
+
+
+// ══════════════════════════════════════════════════════════════════
+// IELTS LIZ HUB — Comprehensive resources from ieltsliz.com
+// ══════════════════════════════════════════════════════════════════
+const IELTS_LIZ = {
+  writing:[
+    {title:"✍️ Task 1 — The Overview Paragraph", band:"6.5–9", tip:`THE OVERVIEW IS YOUR MOST IMPORTANT PARAGRAPH
+
+Liz's #1 Rule: An overview is NOT a conclusion. It goes BEFORE the body paragraphs.
+
+✅ CORRECT STRUCTURE:
+Para 1 — Introduction (1 sentence paraphrasing the question)
+Para 2 — Overview (2 key features, NO data, NO specific numbers)
+Para 3 — Body (first group of details with data)
+Para 4 — Body (second group of details with data)
+
+HOW TO WRITE THE OVERVIEW:
+• Start with "Overall," or "In general," or "As can be seen,"
+• Pick the 2-3 MOST STRIKING features (highest, lowest, biggest change)
+• Do NOT include specific numbers here
+• Write 2 well-developed sentences
+
+EXAMPLE (Line Graph):
+"Overall, car ownership increased steadily over the 20-year period, while bicycle usage showed a consistent decline. Motorcycles remained the least popular form of transport throughout."
+
+OVERVIEW WRITING FORMULA:
+[Subject A] showed/experienced [main trend], while [Subject B] [contrasting trend].
+[Additional key feature — biggest, smallest, most dramatic change].
+
+❌ COMMON MISTAKES:
+• Writing the overview at the END (it goes SECOND)
+• Including specific data in the overview
+• Writing only one sentence
+• Copying the introduction
+
+🎯 BAND IMPACT: A missing or weak overview can prevent you reaching Band 6.`},
+
+    {title:"📊 Task 1 — All 6 Chart Types Explained", band:"6–9", tip:`IELTS ACADEMIC WRITING TASK 1 — CHART TYPES
+
+1️⃣ BAR CHART
+Purpose: Comparing quantities across categories
+Key language: higher than / lower than / twice as much as / the highest / the lowest
+Approach: Group bars logically, compare most notable features
+
+2️⃣ LINE GRAPH  
+Purpose: Showing changes/trends over time
+Key language: rose / fell / fluctuated / remained stable / peaked at / reached a low of
+Approach: Describe overall trend first, then specific turning points
+
+3️⃣ PIE CHART
+Purpose: Showing proportions of a whole (always = 100%)
+Key language: accounted for / made up / comprised / the largest share / nearly half
+Approach: Start with largest segment, group similar sizes
+
+4️⃣ TABLE
+Purpose: Multiple categories with multiple data points
+Key language: ranged from X to Y / the figure for X was / compared with
+Approach: Select most significant data — DON'T describe every cell
+
+5️⃣ PROCESS DIAGRAM
+Purpose: How something is made or how something works (a cycle)
+Key language: First / Then / Next / Following this / Finally / is produced / is converted
+Special rules: Use passive voice ("The material is heated") + present tense
+NO overview needed — describe each stage in order
+
+6️⃣ MAP
+Purpose: Changes to a location over time, OR comparison of two locations
+Key language: to the north/south/east/west of / adjacent to / opposite / has been replaced by / where X once stood
+Approach: Overall change first, then specific developments
+
+GENERAL RULES (all types):
+• Minimum 150 words — aim for 160-180
+• Never copy the question — always paraphrase
+• Always write an overview for charts/tables/graphs
+• Use a variety of vocabulary (don't repeat the same words)`},
+
+    {title:"💡 Task 2 — 5 Essay Types & Structures", band:"6.5–9", tip:`IELTS WRITING TASK 2 — ALL 5 ESSAY TYPES
+
+⚠️ IDENTIFYING THE TYPE is the most critical skill. Get it wrong = Band 5.
+
+1️⃣ OPINION ESSAY
+Trigger phrases: "Do you agree or disagree?" / "To what extent do you agree?"
+Structure:
+  Intro: Background + clear opinion (agree/disagree FULLY)
+  Body 1: First reason for your view + example
+  Body 2: Second reason for your view + example
+  Conclusion: Restate opinion + summary
+Liz's tip: Be decisive. Partial agreement weakens your answer.
+
+2️⃣ DISCUSSION ESSAY
+Trigger phrases: "Discuss both views and give your own opinion"
+Structure:
+  Intro: Background + mention both views
+  Body 1: First perspective + reasons
+  Body 2: Second perspective + your supported opinion
+  Conclusion: Summary of both + your position
+Liz's tip: Your opinion MUST appear in the essay (usually Body 2 or conclusion).
+
+3️⃣ ADVANTAGES / DISADVANTAGES ESSAY
+Trigger phrases: "What are the advantages and disadvantages?"
+Structure:
+  Intro: Background + thesis (do advantages outweigh?)
+  Body 1: Advantages (2-3 developed points)
+  Body 2: Disadvantages (2-3 developed points)
+  Conclusion: Overall assessment
+Liz's tip: Balance both sides unless asked for your view.
+
+4️⃣ PROBLEM / SOLUTION ESSAY
+Trigger phrases: "What problems does this cause? What solutions can you suggest?"
+Structure:
+  Intro: Background statement
+  Body 1: Problems (2-3 with explanations)
+  Body 2: Solutions (matching the problems)
+  Conclusion: Summary
+Liz's tip: Match each solution to a problem discussed.
+
+5️⃣ DIRECT QUESTIONS ESSAY
+Trigger phrases: "What are the causes? What are the effects?" (two separate questions)
+Structure:
+  Intro: Background
+  Body 1: Answer question 1 fully
+  Body 2: Answer question 2 fully
+  Conclusion: Summary
+Liz's CRITICAL tip: This is the most commonly mishandled type. Answer BOTH questions.`},
+
+    {title:"🔤 Vocabulary for High Band Scores", band:"7–9", tip:`IELTS HIGH-BAND VOCABULARY — LIZ'S COLLECTION
+
+ACADEMIC SYNONYMS (avoid repetition):
+increase → rise / grow / escalate / surge / climb
+decrease → fall / drop / decline / diminish / plummet
+show → illustrate / indicate / demonstrate / reveal / depict
+important → significant / crucial / vital / essential / paramount
+problem → challenge / issue / concern / difficulty / obstacle
+think → argue / contend / maintain / suggest / propose
+
+LINKING WORDS BY FUNCTION:
+Adding ideas: Furthermore / Moreover / In addition / Additionally / What is more
+Contrasting: However / Nevertheless / Despite this / On the other hand / Conversely  
+Showing result: Therefore / Consequently / As a result / Hence / Thus
+Giving examples: For instance / For example / To illustrate / Specifically / In particular
+Conceding: Although / While / Even though / Despite / In spite of / Granted that
+Concluding: In conclusion / To summarise / Overall / In summary / To conclude
+
+ACADEMIC PHRASES FOR TASK 2:
+Opening body paragraph: "One of the primary [reasons/causes/advantages] is..."
+Introducing evidence: "This is evidenced by the fact that..." / "Research suggests that..."
+Counterargument: "While it could be argued that..." / "Proponents of this view maintain..."
+Your rebuttal: "However, closer examination reveals..." / "This ignores the fact that..."
+Conclusion phrase: "Taken together, these points demonstrate..." / "The foregoing analysis shows..."
+
+COLLOCATIONS (words that naturally go together):
+reach a conclusion / draw a conclusion
+have a significant impact ON
+play a crucial role IN
+pose a serious threat TO
+provide a solution TO
+contribute TO economic growth
+lead TO environmental damage`},
+  ],
+  speaking:[
+    {title:"🎤 Part 1 — How to Give Perfect Answers", band:"6–9", tip:`IELTS SPEAKING PART 1 — LIZ'S COMPLETE GUIDE
+
+FORMAT: 4-5 minutes · 3 topics · 3-4 questions per topic
+TOPICS: Home, work/study, hobbies, daily life, transport, food, technology, etc.
+
+THE ANSWER FORMULA — "Point, Reason, Example" (PRE):
+Question: "Do you enjoy cooking?"
+❌ Bad answer: "Yes, I do."  ← too short
+❌ Bad answer: [3-minute speech about your cooking history] ← too long
+✅ Good answer (Band 7+): "Yes, I really enjoy it. I find it creative and relaxing — especially experimenting with new recipes at weekends. I particularly love making Thai food because the flavours are so complex."
+
+PART 1 QUESTION TYPES:
+Type A: "Do you like/enjoy...?" → Yes/No + reason + detail
+Type B: "How often do you...?" → Frequency + reason + example
+Type C: "What kind of...do you prefer?" → Preference + reason + comparison
+Type D: "Did you used to...when you were a child?" → Past + comparison to now
+
+KEY RULES FROM LIZ:
+✅ Always extend your answer — 2-3 sentences minimum
+✅ Use because/since/as to connect ideas
+✅ Give specific examples ("For instance, last week I...")
+✅ Compare: "...compared to when I was younger" / "...unlike most people I know"
+✅ Be conversational — this is a CHAT, not a presentation
+❌ Never give one-word answers
+❌ Never say "Sorry, can you repeat?" more than once
+❌ Never speak for more than 30-40 seconds per answer in Part 1`},
+
+    {title:"🗣️ Part 2 — Cue Card Master Strategy", band:"6–9", tip:`IELTS SPEAKING PART 2 — LIZ'S MASTER GUIDE
+
+FORMAT: 1 minute preparation → 1-2 minutes speaking
+You WILL be stopped after 2 minutes.
+
+YOUR 1-MINUTE PREPARATION STRATEGY:
+• Read ALL bullet points immediately
+• Jot 4-5 KEYWORDS only (not full sentences)
+• Decide a STORY — think of a real or realistic experience
+• Plan your ending (the "why" or feelings)
+
+THE PERFECT STRUCTURE (2 minutes):
+0:00-0:15 — WHO/WHAT: Introduce your topic clearly
+"I'd like to talk about a time when I... / I'm going to describe a person who..."
+0:15-0:55 — STORY (When/Where/How): The narrative
+Include specific details — places, times, people, actions
+0:55-1:30 — FEELINGS/IMPACT: The "inner experience"
+"What made this particularly memorable was..." / "The thing that struck me most was..."
+1:30-2:00 — REFLECTION: Why it matters
+"Looking back, I think this experience taught me..." / "In many ways, this was..."
+
+LIZ'S TIPS FOR ALL 4 BULLET POINTS:
+The cue card has 4 bullet points. Address ALL of them.
+Each bullet point = roughly 20-25 seconds of speaking.
+
+LANGUAGE FOR PART 2:
+Starting: "I'd like to talk about..." / "The [person/place/event] I've chosen is..."
+Time reference: "It was about two years ago when..." / "This happened last summer..."
+Describing feelings: "I was absolutely thrilled/devastated/overwhelmed when..."
+Connecting: "What's particularly interesting is..." / "I should also mention that..."
+Concluding: "Overall, this was a truly significant [experience] for me because..."`},
+
+    {title:"💬 Part 3 — Advanced Discussion Techniques", band:"6.5–9", tip:`IELTS SPEAKING PART 3 — LIZ'S ADVANCED GUIDE
+
+FORMAT: 4-5 minutes · Abstract/societal questions · 5-6 questions
+TOPICS: Connect to the Part 2 topic but become broader and more philosophical.
+
+WHY PART 3 IS DIFFERENT:
+Part 1: Personal facts ("Do YOU like...?")
+Part 2: Personal narrative ("Describe a time when YOU...")
+Part 3: Society/world view ("Do you think people in general...?")
+
+THE BAND 8 ANSWER STRUCTURE:
+1. Give your main opinion clearly
+2. Give ONE developed reason with explanation
+3. Give a specific example (real-world, country, statistic)
+4. Acknowledge the other side briefly
+5. Restate your position with nuance
+
+EXAMPLE (Q: "Do you think technology has changed the way people communicate?"):
+"Without doubt, it has transformed communication completely. The most significant change is the immediacy of connection — people can now communicate instantly with anyone globally, which was simply impossible 30 years ago. In countries like South Korea and Japan, for instance, we can see how messaging apps have almost entirely replaced traditional phone calls, especially among younger generations. Of course, critics argue that digital communication lacks the warmth of face-to-face interaction, which is a fair point. Nevertheless, the sheer reach and accessibility of digital communication makes it a net positive for society overall."
+
+HEDGING LANGUAGE (essential for Band 7+):
+"I would argue that..." / "It seems to me that..."
+"Generally speaking..." / "In most cases..."
+"I suppose it depends on..." / "It's difficult to generalise, but..."
+"From my perspective..." / "As far as I can tell..."
+
+SPECULATING (when you're unsure):
+"I imagine that..." / "It's likely that..." / "One could argue that..."
+"There's a possibility that..." / "Presumably..."`},
+  ],
+  reading:[
+    {title:"📖 T/F/NG — The Strategy That Changes Everything", band:"6–9", tip:`TRUE / FALSE / NOT GIVEN — LIZ'S DEFINITIVE GUIDE
+
+This is the question type students get MOST wrong.
+
+THE 3 CATEGORIES:
+TRUE: The statement AGREES with information in the passage
+FALSE: The statement CONTRADICTS information in the passage  
+NOT GIVEN: The passage does NOT contain information on this
+
+THE CRITICAL RULE — "NOT GIVEN vs FALSE":
+Not Given ≠ False. If you think "I don't know this, therefore it must be False" — WRONG.
+Not Given means the TOPIC ITSELF is not addressed. You simply cannot tell.
+
+DECISION PROCESS:
+Step 1: Underline keywords in the statement
+Step 2: Find those keywords (or synonyms) in the passage
+Step 3: Read the surrounding sentences carefully
+Step 4: Ask yourself: "Does the passage say this? Does it say the OPPOSITE? Or does it not say this at all?"
+
+WORKED EXAMPLE:
+Passage: "The Eiffel Tower was completed in 1889 and was the tallest structure in the world at that time."
+Statement 1: "The Eiffel Tower was built in the 19th century." → TRUE (1889 = 19th century)
+Statement 2: "The Eiffel Tower is no longer the world's tallest structure." → NOT GIVEN (passage says "at that time" but doesn't say what happened AFTER)
+Statement 3: "The Eiffel Tower was built as a permanent monument." → NOT GIVEN (permanence not mentioned)
+Statement 4: "The Eiffel Tower was shorter than another Paris landmark in 1889." → FALSE (passage says it WAS the tallest)
+
+NEVER:
+• Use your own general knowledge
+• Assume — only use what the TEXT says
+• Spend more than 90 seconds per question`},
+
+    {title:"📑 Matching Headings — Step-by-Step Process", band:"6–9", tip:`MATCHING HEADINGS — LIZ'S STEP-BY-STEP
+
+This is officially the hardest question type in IELTS Reading.
+
+WHY IT'S HARD:
+• You have more headings than paragraphs (distractors!)
+• Headings paraphrase the main idea, not just mention a topic
+• Every paragraph usually contains multiple topics — only ONE is the main idea
+
+THE PROCESS (do NOT skip steps):
+1. Read ALL the headings first — understand each one
+2. For the FIRST paragraph, read it completely
+3. Ask: "What is the MAIN POINT? What would a newspaper headline say?"
+4. Find the heading that best matches the MAIN POINT (not minor details)
+5. Cross out used headings to avoid confusion
+6. Repeat for each paragraph
+
+IDENTIFYING THE MAIN IDEA:
+• The main idea is usually in the FIRST or LAST sentence of the paragraph
+• Topic sentences signal what the paragraph is mainly about
+• Examples, data, and statistics support the main idea — they are NOT the main idea
+
+TRAPS TO AVOID:
+❌ Trap 1: A heading mentions a word that appears in the paragraph — but that word is a minor detail
+❌ Trap 2: A heading is factually accurate about the paragraph — but describes a supporting point, not the main theme
+❌ Trap 3: Rushing to the first heading that seems to fit — always check alternatives
+
+TIME: This question type takes longer. Allow 10-12 minutes for a passage with matching headings.`},
+  ],
+  listening:[
+    {title:"🎧 The Corrected Information Trap", band:"6–9", tip:`LISTENING — THE CORRECTION TRAP (Affects 70% of students!)
+
+WHAT IS IT?
+In IELTS Listening (especially Section 1), speakers frequently change their answer.
+The EXAMINER DELIBERATELY includes both the wrong answer and the correct answer.
+Students who write quickly write the FIRST answer they hear — which is WRONG.
+
+EXAMPLE:
+Q: "What time does the event start?"
+Recording: "I think we said 7 o'clock... actually, let me check... yes, it's 7:30, not 7."
+❌ Student writes: 7 o'clock (first thing heard)
+✅ Correct answer: 7:30
+
+SIGNALS THAT A CORRECTION IS COMING:
+• "Actually..." / "I mean..." / "No, wait..."
+• "Let me check..." / "Sorry, I meant..."
+• "Or was it...?" / "I think it's... no, it's..."
+• A pause followed by a different answer
+• "Actually, I've changed my mind..."
+
+HOW TO HANDLE IT:
+• Write lightly/tentatively until you hear the FINAL confirmed answer
+• When you hear a correction signal, CROSS OUT your previous answer
+• The LAST stated answer is always correct
+
+OTHER LISTENING TRAPS:
+Trap 1 — Similar sounds: 13 vs 30, 14 vs 40, B vs D vs P
+Trap 2 — Spelling: names, places, unusual words (always spelled out — LISTEN carefully)
+Trap 3 — Multiple choice distractors: ALL options are mentioned, only ONE is the answer
+Trap 4 — Maps: "to the LEFT of" vs "on the left as you enter" (perspective matters!)`},
+
+    {title:"🔢 Listening Sections 1–4 Strategy Guide", band:"6–9", tip:`MASTERING ALL 4 LISTENING SECTIONS — LIZ'S GUIDE
+
+SECTION 1 — Social Situation (easiest)
+Format: Conversation between 2 people · Social context (booking, enquiry, registration)
+Question types: Form completion, note completion
+KEY TRAP: Correction trap (speaker changes answer — write the FINAL answer)
+Strategy: Read questions BEFORE audio starts. Underline keywords. Write tentatively.
+
+SECTION 2 — Monologue (social)
+Format: One speaker · Community event, facility, tour guide, radio broadcast
+Question types: Multiple choice, map labelling, matching, note completion
+KEY TRAP: Map directions — directions vs orientation from entrance perspective
+Strategy: For maps, orient yourself FIRST. Mark entrances and reference points.
+
+SECTION 3 — Academic Discussion (hardest MCQ)
+Format: 2-3 speakers · University: tutorial, assignment, research discussion
+Question types: Multiple choice with 3 options, matching, sentence completion
+KEY TRAP: MCQ distractors — ALL 3 options mentioned; only one is the correct interpretation
+Strategy: Never choose an answer just because you hear the word. Listen for FINAL stance.
+
+SECTION 4 — Academic Lecture (hardest overall)
+Format: One speaker · Academic lecture with no conversation
+Question types: Note/summary/flowchart completion
+KEY CHALLENGE: Dense vocabulary, complex ideas, no pauses
+Strategy: Predict the type of answer (noun? number? place?) before it comes.
+If you miss an answer, MOVE ON immediately.
+
+GENERAL RULES:
+• Answers come in ORDER — stay focused on the current question
+• Spelling matters — names may be spelled out, write exactly
+• Word limits: "no more than TWO words" means exactly that
+• No penalty for wrong answers — never leave a blank`},
+  ],
+  videos:[
+    {title:"▶️ Writing Task 1 — Bar Chart Tutorial (Liz)", band:"6–9", tip:`VIDEO LESSON: IELTS Writing Task 1 Bar Chart
+Source: youtube.com/@ieltsliz
+
+WHAT THIS VIDEO COVERS:
+• How to write an introduction paragraph for bar charts
+• Writing the overview: which features to select
+• How to group and organise body paragraphs
+• Bar chart vocabulary: comparisons, percentages, proportions
+• A complete Band 9 model answer walkthrough
+
+KEY LESSONS:
+1. Introduction = paraphrase the question (change nouns + verbs, NOT structure)
+2. Overview = 2 key features with NO numbers — just the main patterns
+3. Body = specific data with numbers, percentages, comparisons
+4. Never write a conclusion for Task 1
+
+WATCH AT: youtube.com/@ieltsliz → Writing Task 1 playlist
+MORE: ieltsliz.com/ielts-writing-task-1-lessons-and-tips/`},
+
+    {title:"▶️ Speaking Part 2 Model Answer Video (Liz)", band:"6–9", tip:`VIDEO LESSON: IELTS Speaking Part 2 — Cue Card Model Answer
+Source: youtube.com/@ieltsliz
+
+WHAT THIS VIDEO COVERS:
+• How to use 1 minute preparation time effectively
+• The 4-part structure for a 2-minute answer
+• How to link bullet points naturally
+• Language for describing feelings and reflections
+• Full model answer with examiner commentary
+
+KEY INSIGHTS FROM LIZ:
+• "Tell a STORY — don't answer the bullet points as a list"
+• Preparation minute: write only KEYWORDS, not sentences
+• Aim for 2 minutes — if finished in 90 seconds, add reflections
+• Rounding-off questions after your talk: keep answers short
+
+WATCH AT: youtube.com/@ieltsliz → Speaking playlist`},
+
+    {title:"▶️ Reading T/F/NG Video Lesson (Liz)", band:"6–9", tip:`VIDEO LESSON: True / False / Not Given — Liz's Most-Watched Tutorial
+Source: youtube.com/@ieltsliz
+
+WHY THIS IS LIZ'S MOST-WATCHED VIDEO:
+T/F/NG causes most students to lose marks — especially confusing NOT GIVEN with FALSE.
+
+KEY TEACHING POINTS:
+1. NOT GIVEN does not equal FALSE — they are completely different
+2. NOT GIVEN: the topic is simply absent from the passage
+3. FALSE: the passage says the OPPOSITE of the statement
+4. Hardest cases: when the passage is SILENT on part of the statement
+
+WORKED EXAMPLE:
+Passage: "The museum was built in 1887."
+Statement: "The museum was the first of its kind in Europe."
+Answer: NOT GIVEN — the passage says nothing about whether it was "first" or "in Europe"
+
+WATCH AT: youtube.com/@ieltsliz → Reading playlist`},
+  ],
+  topics:[
+    {title:"📝 100 IELTS Essay Questions by Topic (Liz)", band:"6–9", tip:`100 IELTS ESSAY QUESTIONS — FROM IELTSLIZ.COM
+Full list: ieltsliz.com/100-ielts-essay-questions/
+
+TECHNOLOGY:
+1. Technology is increasingly replacing human workers. Positive or negative?
+2. The internet has made the world a better place. Discuss both views.
+3. Social media has had a largely negative impact on society. Agree?
+4. Working from home: beneficial or problematic? Discuss.
+5. Space exploration vs funding social problems — where should money go?
+
+EDUCATION:
+6. Should university education be free? Students vs government funding. Discuss.
+7. Should children be taught at home by parents rather than in school?
+8. Exams are the best way to assess students. To what extent do you agree?
+9. Schools should teach students how to be good citizens. Agree?
+10. Traditional vs technology-based teaching methods. Which is better?
+
+ENVIRONMENT:
+11. Climate change is the biggest global threat. Do you agree?
+12. Individual vs collective/government action on climate change. Which is more effective?
+13. Multinationals should be responsible for environmental damage. Agree?
+14. Plastic waste: causes and solutions essay.
+15. Heavy taxes on petrol to reduce environmental damage: agree or disagree?
+
+HEALTH:
+16. Fast food is the biggest cause of obesity. Agree?
+17. Should governments control what people eat?
+18. Mental health problems are increasing. Causes and solutions.
+19. Preventative medicine vs treating existing illness. Discuss.
+20. Should children learn about healthy lifestyles at school?
+
+SOCIETY:
+21. Immigration: more benefits than drawbacks for host countries. Discuss.
+22. City vs countryside: where is it better to live?
+23. The gap between rich and poor is increasing. Causes and solutions.
+24. Languages dying out due to globalisation. Is this a problem?
+25. Should elderly people live with family or in care homes?`},
+
+    {title:"🗂️ Speaking Part 1 — All 30 Topics + Questions (Liz)", band:"6–9", tip:`IELTS SPEAKING PART 1 — COMPLETE TOPIC LIST
+Source: ieltsliz.com/ielts-speaking-part-1-topics/
+
+THE 4 MOST LIKELY FIRST TOPICS:
+1. Work — What is your job? Why did you choose it? Do you enjoy it?
+2. Study — What do you study? Why that subject? Future plans?
+3. Hometown — Where is it? What is it like? How has it changed?
+4. Home — House or flat? Who do you live with? Favourite room?
+
+ALL 30 TOPICS TO PREPARE:
+Art, Bicycles, Birthdays, Childhood, Clothes, Computers, Daily Routine,
+Dictionaries, Evenings, Family & Friends, Flowers, Food, Going Out,
+Happiness, Hobbies, Internet, Leisure Time, Music, Neighbours,
+Newspapers, Pets, Reading, Shopping, Sport, TV, Transport, Weather,
+Work, Study, Hometown, Home
+
+SAMPLE QUESTIONS FOR "FOOD":
+• What is your favourite food?
+• Is there any food you dislike?
+• Do you prefer home-cooked food or eating out?
+• Is food from your country popular in other countries?
+• Has your taste in food changed since you were a child?
+
+ANSWER FORMULA (P-R-E from Liz):
+Point → Reason → Example
+"Yes, I really enjoy cooking [POINT]. I find it creative and relaxing [REASON],
+especially when I try new international recipes at weekends [EXAMPLE]."
+Target length: 2-4 sentences per answer. Never one word.`},
+
+    {title:"🗓️ Speaking Part 2 — 50 Cue Card Topics (Liz)", band:"6–9", tip:`IELTS SPEAKING PART 2 — CUE CARD TOPICS
+Source: ieltsliz.com/ielts-speaking-part-2-topics/
+
+TOP 10 MOST COMMON CUE CARDS:
+1. Describe a person who has influenced you greatly
+2. Describe a place you visited and particularly enjoyed
+3. Describe an experience that changed your life
+4. Describe a skill you would like to learn
+5. Describe a book or film that made a strong impression
+6. Describe a time when you helped someone
+7. Describe your favourite season/time of year
+8. Describe a piece of technology you find useful
+9. Describe a tradition in your country
+10. Describe a time when you made an important decision
+
+COMPLETE 2-MINUTE STRUCTURE:
+0:00–0:20 — Introduce: "I'd like to describe [topic]..."
+0:20–1:10 — Main description: where/when, who, what happened
+1:10–1:45 — Feelings and reaction: "What made this special was..."
+1:45–2:00 — Reflection: "Looking back, I think this taught me..."
+
+LIZ'S GOLDEN RULE: Address ALL 4 bullet points.
+Each bullet = approximately 25-30 seconds of speaking.`},
+
+    {title:"💬 Speaking Part 3 — Common Discussion Topics (Liz)", band:"6.5–9", tip:`IELTS SPEAKING PART 3 — DISCUSSION TOPICS
+Source: ieltsliz.com/ielts-speaking-part-3-topics-2/
+
+HOW PART 3 CONNECTS TO PART 2:
+If Part 2 was about "a person who influenced you" →
+Part 3 will ask about role models in society, whether celebrities are good role models, etc.
+
+COMMON PART 3 THEMES:
+Technology: Has technology changed how people communicate? Social media effects?
+Education: Should education be free? What makes a good teacher?
+Environment: Individual vs government responsibility. Future of the planet.
+Health: Why are people less healthy than 50 years ago? Government's role.
+Society: Has life improved in the last 100 years? Role of family in modern life.
+
+BAND 7+ ANSWER STRUCTURE:
+1. Give your opinion clearly: "I believe / In my view..."
+2. Reason with explanation: "The main reason is..."
+3. Specific example: "For instance, in [country/context]..."
+4. Acknowledge other side: "Of course, some would argue..."
+5. Restate your position: "Nevertheless, overall I think..."
+
+HEDGING LANGUAGE (essential for Band 7+):
+"It seems to me..." / "I would argue that..."
+"Generally speaking..." / "In most cases..."
+"It depends on..." / "It's difficult to generalise, but..."`},
+  ],
+};
+
+// ══════════════════════════════════════════════════════════════════
+// CAMBRIDGE 1-19 BOOK DESCRIPTIONS
+// ══════════════════════════════════════════════════════════════════
+const CAMB_BOOK_DATA = {
+  1:  {year:'1996', topics:'Environment, Science, Society', desc:'The original Cambridge IELTS practice book. Classic IELTS format. Ideal for understanding foundational question types.'},
+  2:  {year:'1999', topics:'Health, Employment, Culture', desc:'Builds on Book 1 with more varied reading passages. Strong for practising T/F/NG and summary completion.'},
+  3:  {year:'2002', topics:'Wildlife, Technology, Business', desc:'Introduces more complex vocabulary. Excellent for matching headings practice in Reading.'},
+  4:  {year:'2005', topics:'Tourism, Architecture, Trade', desc:'First book to feature complex Task 1 chart types. Strong listening tracks with clear academic vocabulary.'},
+  5:  {year:'2006', topics:'Urban Development, Media, Health', desc:'Multiple-answer listening questions introduced. Writing model answers rated Band 7.5+ with examiner notes.'},
+  6:  {year:'2007', topics:'Climate, Transport, Archaeology', desc:'Features Speaking Part 3 abstract topics with model answers. Challenging Reading passages on scientific themes.'},
+  7:  {year:'2009', topics:'Education, Sports Science, Migration', desc:'Excellent T/F/NG and Yes/No/NG practice. One of the most widely-used books for Band 7 preparation.'},
+  8:  {year:'2011', topics:'Renewable Energy, Psychology, History', desc:'Demanding reading level — ideal for Band 7+ target. Strong process diagram tasks in Writing Task 1.'},
+  9:  {year:'2012', topics:'Biodiversity, Digital Tech, Economics', desc:'Complex Listening Section 4 academic lectures. Multiple choice questions with sophisticated distractors.'},
+  10: {year:'2015', topics:'Globalisation, Health Psychology, Urban', desc:'Modern test format introduced. Very close to current exam style. Recommended starting point for most students.'},
+  11: {year:'2016', topics:'AI, Food Science, Water Resources', desc:'Technology-focused passages ideal for modern vocabulary. Gap-fill listening with academic spelling challenges.'},
+  12: {year:'2017', topics:'Neuroscience, Business Strategy, Law', desc:'Highest difficulty level reading passages. Band 7.5+ writing samples with detailed examiner commentary.'},
+  13: {year:'2018', topics:'Automation, Social Media, Conservation', desc:'Contemporary themes. Strong matching features reading tasks. Natural flowing speaking model transcripts.'},
+  14: {year:'2019', topics:'Space, Nutrition, Cultural Identity', desc:'Features process diagrams and maps in Task 1. Clear listening scripts for Section 3 academic discussions.'},
+  15: {year:'2020', topics:'Intelligence, Fintech, Language Learning', desc:'Reflects post-2019 format changes. Currently the most popular book for self-study. Four complete authentic tests.'},
+  16: {year:'2021', topics:'Remote Work, Online Education, Sustainability', desc:'Post-pandemic themes mirror real exam topics. Closest to current test format among older books.'},
+  17: {year:'2022', topics:'Climate Science, Inequality, Ethics', desc:'Features advanced data interpretation in Reading. Most recent academic vocabulary aligned with current exams.'},
+  18: {year:'2023', topics:'AI Ethics, Urban Farming, Mental Health', desc:'Cutting-edge topics with modern academic vocabulary. Excellent preparation for Band 7+ reading passages.'},
+  19: {year:'2024', topics:'Green Energy, Digital Privacy, Global Health', desc:'MOST RECENT Cambridge book. Closest to today\'s exam. Essential for current test preparation. AI and sustainability focus.'},
+};
+
+function cambShowBookInfo(bookNum) {
+  const info = CAMB_BOOK_DATA[bookNum];
+  const infoDiv = document.getElementById('camb-book-info');
+  if(!info || !infoDiv) return;
+  document.getElementById('camb-book-info-title').textContent = 'Cambridge IELTS ' + bookNum + ' (' + info.year + ')';
+  document.getElementById('camb-book-info-topics').textContent = '📚 Topics: ' + info.topics;
+  document.getElementById('camb-book-info-desc').textContent = info.desc;
+  infoDiv.style.display = '';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// AI RESOURCE GENERATOR
+// ══════════════════════════════════════════════════════════════════
+function generateAIResource() {
+  const btn = document.getElementById('gen-res-btn');
+  if(!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  const activeTab = document.querySelector('#page-resources .tab-pill.active');
+  const tabText = activeTab ? activeTab.textContent : '📖 Reading';
+  const cat = activeTab ? activeTab.onclick.toString().match(/'(\w+)'/)?.[1] || 'reading' : 'reading';
+  
+  // Get category from the tab text more reliably
+  const catMap = {'reading':'IELTS Reading strategies and tips',
+                  'writing':'IELTS Writing Task 1 and Task 2 techniques',
+                  'speaking':'IELTS Speaking Parts 1, 2, and 3 strategies',
+                  'listening':'IELTS Listening techniques and trap avoidance',
+                  'grammar':'IELTS Grammar rules and band-raising corrections',
+                  'strategies':'IELTS exam strategies, time management and mindset'};
+  const currentCat = document.getElementById('resources-list').dataset.cat || 'reading';
+  const catName = catMap[currentCat] || 'IELTS preparation';
+
+  const sys = 'You are an expert IELTS teacher like Liz from ieltsliz.com with 15+ years experience. Create practical, exam-focused content.';
+  const prompt = `Create one detailed IELTS lesson on ${catName}.
+
+Format your response EXACTLY as:
+TITLE: [Specific lesson name]
+LEVEL: [Beginner/Intermediate/Advanced]
+BAND: [e.g. 6+ or 7+ or 7.5+]
+CONTENT:
+[Write 250-350 words of detailed, practical lesson content with:
+- Clear explanation of the concept
+- Step-by-step technique or strategy
+- A worked example showing the technique
+- 2-3 key rules to remember
+- Common mistake to avoid
+Use formatting with numbered steps, bullet points, and examples.]`;
+
+  callAI([{role:'user',content:prompt}], sys)
+    .then(text => {
+      const titleM = text.match(/TITLE:\s*(.+)/);
+      const levelM = text.match(/LEVEL:\s*(.+)/);
+      const bandM = text.match(/BAND:\s*(.+)/);
+      const contentM = text.match(/CONTENT:\s*([\s\S]+)/);
+      const newItem = {
+        title: '🤖 ' + (titleM ? titleM[1].trim() : 'AI Generated Lesson'),
+        level: levelM ? levelM[1].trim() : 'All Levels',
+        band: bandM ? bandM[1].trim() : '6+',
+        content: contentM ? contentM[1].trim() : text.trim()
+      };
+      if(!RESOURCES_DATA[currentCat]) RESOURCES_DATA[currentCat] = [];
+      RESOURCES_DATA[currentCat].unshift(newItem);
+      renderResources(currentCat);
+      showToast('✅ New AI lesson generated!');
+    })
+    .catch(err => {
+      if(err.message==='NO_KEY') showToast('⚠️ Add API key in Settings to use AI');
+      else showToast('Error: ' + err.message);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = '🤖 AI: Generate Lesson';
+    });
+}
+
+function shuffleResources() {
+  const list = document.getElementById('resources-list');
+  const cat = list ? list.dataset.cat : 'reading';
+  if(RESOURCES_DATA[cat]) {
+    const arr = RESOURCES_DATA[cat];
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    renderResources(cat);
+    showToast('🔀 Reshuffled!');
+  }
+}
+
+function renderLizHub(activeTab) {
+  const list = document.getElementById('resources-list');
+  if(!list) return;
+  list.dataset.cat = 'liz';
+  activeTab = activeTab || 'all';
+  
+  const catMap = {
+    all:     [...IELTS_LIZ.writing, ...IELTS_LIZ.speaking, ...IELTS_LIZ.reading, ...IELTS_LIZ.listening, ...(IELTS_LIZ.videos||[]), ...(IELTS_LIZ.topics||[])],
+    writing: IELTS_LIZ.writing,
+    speaking: IELTS_LIZ.speaking,
+    reading:  IELTS_LIZ.reading,
+    listening: IELTS_LIZ.listening,
+    videos:  IELTS_LIZ.videos || [],
+    topics:  IELTS_LIZ.topics || [],
+  };
+  const items = catMap[activeTab] || catMap.all;
+  
+  const tabs = [
+    {key:'all',label:'📚 All'},
+    {key:'writing',label:'✍️ Writing'},
+    {key:'speaking',label:'🎤 Speaking'},
+    {key:'reading',label:'📖 Reading'},
+    {key:'listening',label:'🎧 Listening'},
+    {key:'videos',label:'▶️ Videos'},
+    {key:'topics',label:'📝 Topics'},
+  ];
+
+  list.innerHTML = '<div class="card mb-12" style="background:linear-gradient(135deg,var(--blue-dim),var(--bg2));border:1px solid var(--blue);">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
+    + '<span style="font-size:28px;">🌟</span>'
+    + '<div><div class="fw-700" style="color:var(--blue2);">Liz\'s IELTS Hub</div>'
+    + '<div class="text-xs text-muted">Expert strategies from ieltsliz.com — trusted by millions worldwide</div></div>'
+    + '</div>'
+    + '<div class="text-xs" style="color:var(--text2);margin-bottom:12px;">Elizabeth (Liz) has been teaching IELTS since 2008. Her free lessons, model answers and videos target Band 7–9. These resources are based on her proven methodology.</div>'
+    + '<div style="font-size:12px;"><a href="https://ieltsliz.com" target="_blank" style="color:var(--blue2);text-decoration:none;">🔗 Visit ieltsliz.com</a> &nbsp;·&nbsp; <a href="https://youtube.com/@ieltsliz" target="_blank" style="color:var(--blue2);text-decoration:none;">▶️ YouTube @ieltsliz</a></div>'
+    + '</div>'
+    + '<div class="tab-scroll mb-12">'
+    + tabs.map(t => '<button class="tab-pill' + (t.key===activeTab?' active':'') + '" onclick="renderLizHub(\'' + t.key + '\')">' + t.label + '</button>').join('')
+    + '</div>'
+    + items.map((item, i) => {
+      return '<div class="accordion' + (i===0?' open':'') + '" id="liz-'+activeTab+'-'+i+'">'
+        + '<div class="accordion-head" onclick="toggleAccordion(\'liz-'+activeTab+'-'+i+'\')">'
+        + '<div><div class="fw-700 text-sm">' + item.title + '</div>'
+        + '<div class="text-xs text-muted" style="margin-top:3px;">'
+        + '<span style="background:var(--bg3);border-radius:4px;padding:2px 6px;margin-right:6px;">Band ' + item.band + '</span>'
+        + '</div></div>'
+        + '<span class="acc-chevron">▼</span>'
+        + '</div>'
+        + '<div class="accordion-body"><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.7;color:var(--text2);">'
+        + escHtml(item.tip)
+        + '</pre>'
+        + '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">'
+        + '<button class="btn btn-primary btn-sm" onclick="lizPractice_v2(\'' + activeTab + '\',' + i + ')">✏️ Practice This</button>'
+        + '<button class="btn btn-ghost btn-sm" onclick="lizAskAI_v2(\'' + activeTab + '\',' + i + ')">🤖 Ask AI More</button>'
+        + '</div>'
+        + '</div></div>';
+    }).join('');
+}
+
+function lizPractice_v2(cat, idx) {
+  const catMap = {
+    all:[...IELTS_LIZ.writing,...IELTS_LIZ.speaking,...IELTS_LIZ.reading,...IELTS_LIZ.listening,...(IELTS_LIZ.videos||[]),...(IELTS_LIZ.topics||[])],
+    writing:IELTS_LIZ.writing, speaking:IELTS_LIZ.speaking, reading:IELTS_LIZ.reading,
+    listening:IELTS_LIZ.listening, videos:IELTS_LIZ.videos||[], topics:IELTS_LIZ.topics||[],
+  };
+  const item = (catMap[cat]||catMap.all)[idx];
+  if(!item) return;
+  navigate('tutor');
+  setTimeout(() => sendMessage('I want to practice the IELTS technique: "' + item.title + '"\n\nSummary:\n' + item.tip.slice(0,300) + '...\n\nPlease create a practice exercise for me.'), 300);
+}
+
+function lizAskAI_v2(cat, idx) {
+  const catMap = {
+    all:[...IELTS_LIZ.writing,...IELTS_LIZ.speaking,...IELTS_LIZ.reading,...IELTS_LIZ.listening,...(IELTS_LIZ.videos||[]),...(IELTS_LIZ.topics||[])],
+    writing:IELTS_LIZ.writing, speaking:IELTS_LIZ.speaking, reading:IELTS_LIZ.reading,
+    listening:IELTS_LIZ.listening, videos:IELTS_LIZ.videos||[], topics:IELTS_LIZ.topics||[],
+  };
+  const item = (catMap[cat]||catMap.all)[idx];
+  if(!item) return;
+  navigate('tutor');
+  setTimeout(() => sendMessage('Can you give me a deeper explanation of: "' + item.title + '"? Include extra examples, common mistakes, and band score impact.'), 300);
+}
+
+function lizPractice(idx) {
+  const allLiz = [...IELTS_LIZ.writing, ...IELTS_LIZ.speaking, ...IELTS_LIZ.reading, ...IELTS_LIZ.listening];
+  const item = allLiz[idx];
+  if(!item) return;
+  navigate('tutor');
+  setTimeout(() => sendMessage('I want to practice the IELTS technique described in this lesson: "' + item.title + '"\n\nTechnique summary:\n' + item.tip.slice(0,300) + '...\n\nPlease create a practice exercise for me based on this specific technique.'), 300);
+}
+
+function lizAskAI(idx) {
+  const allLiz = [...IELTS_LIZ.writing, ...IELTS_LIZ.speaking, ...IELTS_LIZ.reading, ...IELTS_LIZ.listening];
+  const item = allLiz[idx];
+  if(!item) return;
+  navigate('tutor');
+  setTimeout(() => sendMessage('Can you give me a deeper explanation of this IELTS technique: "' + item.title + '"? Include additional examples, common mistakes, and how it affects my band score.'), 300);
+}
+
+
+
+
+
+function shuffleGrammar() {
+  if(!GRAMMAR_LESSONS) return;
+  for(let i=GRAMMAR_LESSONS.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[GRAMMAR_LESSONS[i],GRAMMAR_LESSONS[j]]=[GRAMMAR_LESSONS[j],GRAMMAR_LESSONS[i]];}
+  renderGrammar('complex');
+  showToast('🔀 Grammar exercises reshuffled!');
+}
+
+
+function generateAIGrammar() {
+  const btn = document.getElementById('gen-grammar-btn');
+  if(!btn || btn.disabled) return;
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+  const sys = 'You are an IELTS grammar expert. Create targeted grammar exercises for IELTS band score improvement.';
+  const grammarTopics = ['complex sentences with subordinate clauses','passive voice in academic writing','third conditional sentences','defining and non-defining relative clauses','reported speech and backshift','article usage (a/an/the/zero)','perfect tenses in IELTS writing','subject-verb agreement with complex subjects','parallel structures in lists','academic punctuation rules'];
+  const topic = grammarTopics[Math.floor(Math.random()*grammarTopics.length)];
+  const prompt = 'Create an IELTS grammar lesson on: ' + topic + '.\n\nFormat EXACTLY:\nTITLE: [topic name]\nLEVEL: Intermediate\nBAND: 6.5+\nCONTENT:\n[Write 200-300 words: explanation, rule, 3 examples, IELTS application, common mistake]';
+  callAI([{role:'user',content:prompt}], sys)
+    .then(function(text) {
+      var titleM=text.match(/TITLE:\s*(.+)/);
+      var levelM=text.match(/LEVEL:\s*(.+)/);
+      var bandM=text.match(/BAND:\s*(.+)/);
+      var contentM=text.match(/CONTENT:\s*([\s\S]+)/);
+      var newItem={
+        title:'🤖 AI: '+(titleM?titleM[1].trim():topic),
+        level:levelM?levelM[1].trim():'Intermediate',
+        band:bandM?bandM[1].trim():'6.5+',
+        content:contentM?contentM[1].trim():text.trim()
+      };
+      if(typeof GRAMMAR_LESSONS !== 'undefined') {
+        GRAMMAR_LESSONS.unshift(newItem);
+        if(typeof renderGrammar === 'function') renderGrammar('all');
+      }
+      showToast('✅ AI grammar lesson generated!');
+    })
+    .catch(function(err) {
+      if(err.message==='NO_KEY') showToast('⚠️ Add API key in Settings');
+      else showToast('Error: ' + err.message);
+    })
+    .finally(function() {
+      btn.disabled=false;
+      btn.textContent='🤖 AI: Generate Exercise';
+    });
 }
 
 
